@@ -1,672 +1,643 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
-<html>
+<!DOCTYPE html>
+<html lang="zh-HK">
 <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2685.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #8486ff; -webkit-text-stroke: #8486ff}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #53d160; -webkit-text-stroke: #53d160}
-    p.p3 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #fc7dd1; -webkit-text-stroke: #fc7dd1}
-    p.p4 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #fed611; -webkit-text-stroke: #fed611}
-    p.p5 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #ffffff; -webkit-text-stroke: #ffffff}
-    p.p6 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #626262; -webkit-text-stroke: #626262}
-    p.p7 {margin: 0.0px 0.0px 0.0px 0.0px; font: 14.0px Menlo; color: #ffffff; -webkit-text-stroke: #ffffff; min-height: 16.0px}
-    span.s1 {font-kerning: none; background-color: #101010}
-    span.s2 {font-kerning: none; color: #ffffff; background-color: #101010; -webkit-text-stroke: 0px #ffffff}
-    span.s3 {font-kerning: none; color: #626262; background-color: #101010; -webkit-text-stroke: 0px #626262}
-    span.s4 {font-kerning: none; color: #fc7dd1; background-color: #101010; -webkit-text-stroke: 0px #fc7dd1}
-    span.s5 {font-kerning: none; color: #fed611; background-color: #101010; -webkit-text-stroke: 0px #fed611}
-    span.s6 {font-kerning: none; color: #53d160; background-color: #101010; -webkit-text-stroke: 0px #53d160}
-    span.s7 {font-kerning: none; color: #8486ff; background-color: #101010; -webkit-text-stroke: 0px #8486ff}
-    span.s8 {font-kerning: none}
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小小天氣播報員 - 普通話學習遊戲</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Canvas Confetti 慶祝特效 -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- 圓潤繁體字型 -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
+            min-height: 100vh;
+        }
+        /* 電視直播間邊框樣式 */
+        .tv-frame {
+            background: linear-gradient(145deg, #1e293b, #0f172a);
+            border: 6px solid #334155;
+            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.3);
+        }
+        /* 詞語卡片互動 hover 及拖拽效果 */
+        .drag-card {
+            touch-action: manipulation;
+            user-select: none;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .drag-card:hover {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.12);
+        }
+        /* 放置區視覺反饋 */
+        .drop-zone {
+            transition: all 0.2s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #fef08a !important;
+            border-color: #f59e0b !important;
+            transform: scale(1.04);
+        }
+        /* LIVE 閃爍紅燈 */
+        .pulse-live {
+            animation: pulse-red 1.5s infinite;
+        }
+        @keyframes pulse-red {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+        /* 聲音播放中的波浪提示 */
+        .audio-playing-badge {
+            animation: bounce 0.8s infinite alternate;
+        }
+    </style>
 </head>
-<body>
-<p class="p1"><span class="s1">&lt;!DOCTYPE</span><span class="s2"> html</span><span class="s1">&gt;</span></p>
-<p class="p2"><span class="s3">&lt;</span><span class="s4">html</span><span class="s2"> </span><span class="s5">lang</span><span class="s3">=</span><span class="s1">"zh-HK"</span><span class="s3">&gt;</span></p>
-<p class="p3"><span class="s3">&lt;</span><span class="s1">head</span><span class="s3">&gt;</span></p>
-<p class="p4"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">meta</span><span class="s2"> </span><span class="s1">charset</span><span class="s3">=</span><span class="s6">"UTF-8"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">meta</span><span class="s2"> </span><span class="s5">name</span><span class="s3">=</span><span class="s1">"viewport"</span><span class="s2"> </span><span class="s5">content</span><span class="s3">=</span><span class="s1">"width=device-width, initial-scale=1.0"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">title</span><span class="s3">&gt;</span><span class="s1">小小天氣播報員 - 普通話學習遊戲</span><span class="s3">&lt;/</span><span class="s4">title</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- Tailwind CSS CDN --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">script</span><span class="s2"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://cdn.tailwindcss.com"</span><span class="s3">&gt;&lt;/</span><span class="s4">script</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- Canvas Confetti 慶祝特效 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">script</span><span class="s2"> </span><span class="s5">src</span><span class="s3">=</span><span class="s1">"https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"</span><span class="s3">&gt;&lt;/</span><span class="s4">script</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- 圓潤繁體字型 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">link</span><span class="s2"> </span><span class="s5">href</span><span class="s3">=</span><span class="s1">"https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800;900&amp;display=swap"</span><span class="s2"> </span><span class="s5">rel</span><span class="s3">=</span><span class="s1">"stylesheet"</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">    </span></span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s1">style</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s4">body</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">font-family:</span><span class="s2"> </span><span class="s1">'Noto Sans TC'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">sans-serif</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">background:</span><span class="s2"> </span><span class="s1">linear-gradient(135deg</span><span class="s3">,</span><span class="s2"> </span><span class="s1">#e0f2fe</span><span class="s2"> </span><span class="s1">0%</span><span class="s3">,</span><span class="s2"> </span><span class="s1">#bae6fd</span><span class="s2"> </span><span class="s1">50%</span><span class="s3">,</span><span class="s2"> </span><span class="s1">#f0f9ff</span><span class="s2"> </span><span class="s1">100%)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">min-height:</span><span class="s1"> </span><span class="s6">100vh</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">/* 電視直播間邊框樣式 */</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s4">.tv-frame</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">background:</span><span class="s2"> </span><span class="s1">linear-gradient(145deg</span><span class="s3">,</span><span class="s2"> </span><span class="s1">#1e293b</span><span class="s3">,</span><span class="s2"> </span><span class="s1">#0f172a)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">border:</span><span class="s1"> </span><span class="s6">6px</span><span class="s1"> </span><span class="s6">solid</span><span class="s1"> </span><span class="s6">#334155</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">box-shadow:</span><span class="s2"> </span><span class="s1">0</span><span class="s2"> </span><span class="s1">15px</span><span class="s2"> </span><span class="s1">25px</span><span class="s2"> </span><span class="s1">-5px</span><span class="s2"> </span><span class="s1">rgba(0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0.3)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">/* 詞語卡片互動 hover 及拖拽效果 */</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.drag-card</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">touch-action:</span><span class="s1"> </span><span class="s6">manipulation</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">user-select:</span><span class="s1"> </span><span class="s6">none</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">transition:</span><span class="s2"> </span><span class="s1">all</span><span class="s2"> </span><span class="s1">0.2s</span><span class="s2"> </span><span class="s1">cubic-bezier(0.4</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0.2</span><span class="s3">,</span><span class="s2"> </span><span class="s1">1)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.drag-card:hover</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">transform:</span><span class="s2"> </span><span class="s1">translateY(-2px)</span><span class="s2"> </span><span class="s1">scale(1.02)</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">box-shadow:</span><span class="s2"> </span><span class="s1">0</span><span class="s2"> </span><span class="s1">8px</span><span class="s2"> </span><span class="s1">12px</span><span class="s2"> </span><span class="s1">-2px</span><span class="s2"> </span><span class="s1">rgba(0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0</span><span class="s3">,</span><span class="s2"> </span><span class="s1">0.12)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">/* 放置區視覺反饋 */</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.drop-zone</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">transition:</span><span class="s1"> </span><span class="s6">all</span><span class="s1"> </span><span class="s6">0.2s</span><span class="s1"> </span><span class="s6">ease</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.drop-zone.drag-over</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p4"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">background-color:</span><span class="s2"> </span><span class="s6">#fef08a</span><span class="s2"> </span><span class="s7">!important</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">border-color:</span><span class="s1"> </span><span class="s6">#f59e0b</span><span class="s1"> </span><span class="s7">!important</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s5">transform:</span><span class="s1"> </span><span class="s6">scale(1.04)</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">/* LIVE 閃爍紅燈 */</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.pulse-live</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">animation:</span><span class="s2"> </span><span class="s1">pulse-red</span><span class="s2"> </span><span class="s1">1.5s</span><span class="s2"> </span><span class="s1">infinite</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">@keyframes</span><span class="s1"> </span><span class="s6">pulse-red</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s6">0%</span><span class="s3">,</span><span class="s1"> </span><span class="s6">100%</span><span class="s1"> </span><span class="s3">{</span><span class="s1"> </span><span class="s5">opacity:</span><span class="s1"> </span><span class="s6">1</span><span class="s3">;</span><span class="s1"> </span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s6">50%</span><span class="s1"> </span><span class="s3">{</span><span class="s1"> </span><span class="s5">opacity:</span><span class="s1"> </span><span class="s6">0.3</span><span class="s3">;</span><span class="s1"> </span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">/* 聲音播放中的波浪提示 */</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">.audio-playing-badge</span><span class="s2"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s5">animation:</span><span class="s2"> </span><span class="s1">bounce</span><span class="s2"> </span><span class="s1">0.8s</span><span class="s2"> </span><span class="s1">infinite</span><span class="s2"> </span><span class="s1">alternate</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">style</span><span class="s3">&gt;</span></p>
-<p class="p3"><span class="s3">&lt;/</span><span class="s1">head</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s3">&lt;</span><span class="s4">body</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"flex flex-col items-center justify-between p-2 md:p-5 text-slate-800"</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- 頁頭與標題區 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">header</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full max-w-5xl flex items-center justify-between gap-2 mb-3 bg-white/80 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-sm border border-sky-100 relative"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"flex items-center gap-2.5"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-2xl md:text-3xl"</span><span class="s3">&gt;</span><span class="s2">🎙️</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">h1</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-lg md:text-xl font-black text-sky-900 tracking-wide"</span><span class="s3">&gt;</span><span class="s2">小小天氣播報員</span><span class="s3">&lt;/</span><span class="s4">h1</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"flex items-center gap-2"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">button</span><span class="s2"> </span><span class="s5">onclick</span><span class="s3">=</span><span class="s1">"initGame()"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 font-bold text-xs md:text-sm px-3 py-2 rounded-xl shadow transition flex items-center gap-1"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s1">🔄</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s1"> 換一局天氣</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">button</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">button</span><span class="s2"> </span><span class="s5">onclick</span><span class="s3">=</span><span class="s1">"toggleMute()"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1"</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"btn-mute"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"mute-icon"</span><span class="s3">&gt;</span><span class="s2">🔊</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s2"> </span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"mute-text"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"hidden sm:inline"</span><span class="s3">&gt;</span><span class="s2">音效開</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">button</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">&lt;!-- 頂部普通話播放中動態標籤 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"audio-status-badge"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"hidden absolute left-1/2 -translate-x-1/2 -bottom-3 bg-indigo-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1 z-20 audio-playing-badge"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"animate-spin"</span><span class="s3">&gt;</span><span class="s2">🗣️</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s2"> </span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"audio-status-text"</span><span class="s3">&gt;</span><span class="s2">正在以普通話發音...</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">header</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- 主遊戲區域：左側天氣直播間 (7欄)，右側詞語卡片盤 (5欄) - md: 即開啟並排 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">main</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 items-stretch my-auto"</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">        </span></span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">&lt;!-- 左側：電視天氣直播間 (7 欄) --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;</span><span class="s4">section</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"md:col-span-7 flex flex-col justify-between w-full"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"tv-frame w-full rounded-2xl p-3 md:p-4 relative overflow-hidden flex flex-col items-center"</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s1">&lt;!-- TV Live 直播狀態 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full flex justify-between items-center mb-2 text-xs font-bold text-white tracking-widest border-b border-slate-700/60 pb-1.5"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"flex items-center gap-1 text-red-500 bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800 text-[11px]"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                        </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-2 h-2 rounded-full bg-red-500 pulse-live"</span><span class="s3">&gt;&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s2"> LIVE 直播中</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s1"> </span><span class="s5">class</span><span class="s3">=</span><span class="s6">"text-sky-300 font-mono text-[11px]"</span><span class="s3">&gt;</span><span class="s1">CHANNEL 2 - 普通話天氣台</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;!-- 天氣圖片顯示區 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"weather-image-container"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full h-36 sm:h-44 md:h-48 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-xl flex flex-col items-center justify-center relative p-2 shadow-inner border border-slate-700"</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s1">&lt;!-- 動態 SVG 天氣圖案由 JS 渲染 --&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s1">&lt;!-- 填空句子區：現在為大家播報天氣，今天[天氣]。 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full bg-slate-800/90 rounded-xl p-2.5 mt-3 border border-slate-700 flex flex-wrap items-center justify-center gap-1.5 md:gap-2 text-white text-sm sm:text-base md:text-lg font-bold"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s1"> </span><span class="s5">class</span><span class="s3">=</span><span class="s6">"text-sky-200 tracking-wider"</span><span class="s3">&gt;</span><span class="s1">現在為大家播報天氣，今天</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">                    </span></span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s1">&lt;!-- 放置目標區 Drop Zone --&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s1"> </span><span class="s5">id</span><span class="s3">=</span><span class="s6">"drop-target"</span><span class="s1"><span class="Apple-converted-space"> </span></span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                         </span></span><span class="s5">class</span><span class="s3">=</span><span class="s1">"drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300"</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span></span><span class="s5">ondragover</span><span class="s3">=</span><span class="s6">"handleDragOver(event)"</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span></span><span class="s5">ondragleave</span><span class="s3">=</span><span class="s6">"handleDragLeave(event)"</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span></span><span class="s5">ondrop</span><span class="s3">=</span><span class="s6">"handleDrop(event)"</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                         </span></span><span class="s5">onclick</span><span class="s3">=</span><span class="s6">"clearSlot()"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                        </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"drop-placeholder"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-xs text-sky-400 font-normal"</span><span class="s3">&gt;</span><span class="s2">拖曳或點擊詞語</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s1"> </span><span class="s5">class</span><span class="s3">=</span><span class="s6">"text-sky-200"</span><span class="s3">&gt;</span><span class="s1">。</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">&lt;!-- 答對反饋與全句普通話朗讀按鈕 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"mt-2 min-h-[48px] w-full flex flex-col items-center justify-center"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">button</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"btn-read-sentence"</span><span class="s2"><span class="Apple-converted-space"> </span></span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span></span><span class="s5">onclick</span><span class="s3">=</span><span class="s6">"speakFullSentence()"</span><span class="s1"><span class="Apple-converted-space"> </span></span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                        </span></span><span class="s5">class</span><span class="s3">=</span><span class="s1">"hidden bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-sm md:text-base font-bold px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition animate-bounce border border-emerald-300"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s1"> </span><span class="s5">id</span><span class="s3">=</span><span class="s6">"read-btn-icon"</span><span class="s1"> </span><span class="s5">class</span><span class="s3">=</span><span class="s6">"text-lg"</span><span class="s3">&gt;</span><span class="s1">📢</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s1"> 按一下發聲：普通話讀出整句</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">button</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">p</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"feedback-message"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-xs md:text-sm font-bold text-slate-700 hidden mt-1 px-3 py-1 rounded-full bg-white/90 shadow-sm border"</span><span class="s3">&gt;&lt;/</span><span class="s4">p</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;/</span><span class="s4">section</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">&lt;!-- 右側：天氣詞語卡片盤 (5 欄) --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;</span><span class="s4">section</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"md:col-span-5 w-full bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-md border border-sky-100 flex flex-col justify-between"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"flex items-center justify-between mb-2.5 border-b border-sky-100 pb-2"</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">h2</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-sm md:text-base font-bold text-sky-900 flex items-center gap-1.5"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s1">🏷️</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span><span class="s1"> 天氣詞語卡片區</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;/</span><span class="s4">h2</span><span class="s3">&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s3">&lt;</span><span class="s4">span</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-[11px] text-indigo-600 font-semibold"</span><span class="s3">&gt;</span><span class="s2">（按 🔊 聽國語發音）</span><span class="s3">&lt;/</span><span class="s4">span</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s1">&lt;!-- 8 個天氣詞語網格卡片區 (2欄 layout) --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;</span><span class="s4">div</span><span class="s2"> </span><span class="s5">id</span><span class="s3">=</span><span class="s1">"words-grid"</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"grid grid-cols-2 gap-2"</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s1">&lt;!-- JavaScript 動態生成 8 個天氣詞語 --&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">div</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;</span><span class="s4">p</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"text-[11px] text-center text-sky-600/80 font-medium mt-3 pt-2 border-t border-sky-100"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>💡 提示：點擊右側詞語卡片，或拖曳至左側填空框。</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">&lt;/</span><span class="s4">p</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">&lt;/</span><span class="s4">section</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s4">main</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s1">&lt;!-- 頁腳版權聲明 --&gt;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s4">footer</span><span class="s2"> </span><span class="s5">class</span><span class="s3">=</span><span class="s1">"w-full max-w-5xl text-center text-[11px] text-sky-700 font-medium py-2 mt-2 border-t border-sky-200/60"</span><span class="s3">&gt;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>香港小學普通話科「小小天氣播報員」自主學習小遊戲 &amp;copy; 自主學習數位教材</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">footer</span><span class="s3">&gt;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;</span><span class="s1">script</span><span class="s3">&gt;</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s1">// 8 種天氣完整資料庫 (包含漢字、拼音、向量圖案 SVG)</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">        </span></span><span class="s7">const</span><span class="s2"> </span><span class="s1">WEATHER_DATA</span><span class="s2"> </span><span class="s3">=</span><span class="s2"> </span><span class="s3">[</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'qingtian'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'晴天'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'qīng tiān'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;circle cx="50" cy="50" r="22" fill="#FBBF24"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#FBBF24" stroke-width="4" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="50" y1="12" x2="50" y2="20"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="50" y1="80" x2="50" y2="88"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="12" y1="50" x2="20" y2="50"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="80" y1="50" x2="88" y2="50"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="23" y1="23" x2="29" y2="29"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="71" y1="71" x2="77" y2="77"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="23" y1="77" x2="29" y2="71"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="71" y1="29" x2="77" y2="23"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'duoyun'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'多雲'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'duō yún'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;circle cx="38" cy="38" r="18" fill="#FBBF24"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 30 65 A 14 14 0 0 1 45 48 A 18 18 0 0 1 78 52 A 12 12 0 0 1 82 72 Z" fill="#E2E8F0"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 20 72 A 12 12 0 0 1 32 58 A 16 16 0 0 1 62 62 A 12 12 0 0 1 65 78 Z" fill="#CBD5E1"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'yintian'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'陰天'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'yīn tiān'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 25 50 A 16 16 0 0 1 50 38 A 20 20 0 0 1 85 46 A 15 15 0 0 1 85 72 Z" fill="#94A3B8"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 15 72 A 14 14 0 0 1 30 56 A 18 18 0 0 1 65 60 A 14 14 0 0 1 68 82 Z" fill="#64748B"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'xiaoyu'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'小雨'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'xiǎo yǔ'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 20 48 A 14 14 0 0 1 42 36 A 18 18 0 0 1 78 44 A 12 12 0 0 1 78 66 Z" fill="#94A3B8"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#38BDF8" stroke-width="3" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="35" y1="72" x2="30" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="55" y1="72" x2="50" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="70" y1="72" x2="65" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'zhongyu'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'中雨'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'zhōng yǔ'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 20 45 A 14 14 0 0 1 42 33 A 18 18 0 0 1 78 41 A 12 12 0 0 1 78 63 Z" fill="#64748B"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#0EA5E9" stroke-width="3.5" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="30" y1="68" x2="23" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="45" y1="68" x2="38" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="60" y1="68" x2="53" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="75" y1="68" x2="68" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'dayu'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'大雨'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'dà yǔ'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 20 42 A 14 14 0 0 1 42 30 A 18 18 0 0 1 78 38 A 12 12 0 0 1 78 60 Z" fill="#475569"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#0284C7" stroke-width="4" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="25" y1="65" x2="15" y2="85"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="40" y1="65" x2="30" y2="85"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="55" y1="65" x2="45" y2="85"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="70" y1="65" x2="60" y2="85"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'zhenyu'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'陣雨'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'zhèn yǔ'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;circle cx="32" cy="35" r="15" fill="#FBBF24"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 25 50 A 14 14 0 0 1 45 36 A 18 18 0 0 1 80 42 A 12 12 0 0 1 80 64 Z" fill="#94A3B8"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#38BDF8" stroke-width="3" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="38" y1="70" x2="30" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="58" y1="70" x2="50" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="72" y1="70" x2="64" y2="82"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>id</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'leiyu'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>word</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'雷雨'</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>pinyin</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'léi yǔ'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>svg</span><span class="s3">:</span><span class="s2"> </span><span class="s1">`&lt;svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;path d="M 20 40 A 14 14 0 0 1 42 28 A 18 18 0 0 1 78 36 A 12 12 0 0 1 78 58 Z" fill="#334155"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;polygon points="48,54 38,70 46,70 40,86 58,66 49,66" fill="#F59E0B"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;g stroke="#38BDF8" stroke-width="3" stroke-linecap="round"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="26" y1="64" x2="18" y2="80"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                            </span>&lt;line x1="72" y1="64" x2="64" y2="80"/&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>&lt;/g&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                      </span>&lt;/svg&gt;`</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">];</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">let</span><span class="s1"> currentWeather </span><span class="s3">=</span><span class="s1"> </span><span class="s7">null</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">let</span><span class="s1"> isMuted </span><span class="s3">=</span><span class="s1"> </span><span class="s7">false</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">let</span><span class="s1"> audioCtx </span><span class="s3">=</span><span class="s1"> </span><span class="s7">null</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> playSound</span><span class="s3">(</span><span class="s1">type</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">isMuted</span><span class="s3">)</span><span class="s1"> </span><span class="s7">return</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">try</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">audioCtx</span><span class="s3">)</span><span class="s1"> audioCtx </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s3">(</span><span class="s1">window</span><span class="s3">.</span><span class="s4">AudioContext</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> window</span><span class="s3">.</span><span class="s1">webkitAudioContext</span><span class="s3">)();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">audioCtx</span><span class="s3">.</span><span class="s1">state </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'suspended'</span><span class="s3">)</span><span class="s1"> audioCtx</span><span class="s3">.</span><span class="s1">resume</span><span class="s3">();</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> osc </span><span class="s3">=</span><span class="s1"> audioCtx</span><span class="s3">.</span><span class="s1">createOscillator</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> gain </span><span class="s3">=</span><span class="s1"> audioCtx</span><span class="s3">.</span><span class="s1">createGain</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>osc</span><span class="s3">.</span><span class="s1">connect</span><span class="s3">(</span><span class="s1">gain</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>gain</span><span class="s3">.</span><span class="s1">connect</span><span class="s3">(</span><span class="s1">audioCtx</span><span class="s3">.</span><span class="s1">destination</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> now </span><span class="s3">=</span><span class="s1"> audioCtx</span><span class="s3">.</span><span class="s1">currentTime</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">type </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'correct'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">// 答對雙提示音</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">type </span><span class="s3">=</span><span class="s1"> </span><span class="s6">'sine'</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">frequency</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">523.25</span><span class="s3">,</span><span class="s1"> now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">frequency</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">659.25</span><span class="s3">,</span><span class="s1"> now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.12</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>gain</span><span class="s3">.</span><span class="s1">gain</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">0.3</span><span class="s3">,</span><span class="s1"> now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>gain</span><span class="s3">.</span><span class="s1">gain</span><span class="s3">.</span><span class="s1">exponentialRampToValueAtTime</span><span class="s3">(</span><span class="s5">0.01</span><span class="s3">,</span><span class="s1"> now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.4</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">start</span><span class="s3">(</span><span class="s1">now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">stop</span><span class="s3">(</span><span class="s1">now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.4</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">else</span><span class="s1"> </span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">type </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'wrong'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">// 答錯低音</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">type </span><span class="s3">=</span><span class="s1"> </span><span class="s6">'triangle'</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">frequency</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">220</span><span class="s3">,</span><span class="s1"> now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">frequency</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">174.61</span><span class="s3">,</span><span class="s1"> now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.15</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>gain</span><span class="s3">.</span><span class="s1">gain</span><span class="s3">.</span><span class="s1">setValueAtTime</span><span class="s3">(</span><span class="s5">0.3</span><span class="s3">,</span><span class="s1"> now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>gain</span><span class="s3">.</span><span class="s1">gain</span><span class="s3">.</span><span class="s1">exponentialRampToValueAtTime</span><span class="s3">(</span><span class="s5">0.01</span><span class="s3">,</span><span class="s1"> now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.35</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">start</span><span class="s3">(</span><span class="s1">now</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>osc</span><span class="s3">.</span><span class="s1">stop</span><span class="s3">(</span><span class="s1">now </span><span class="s3">+</span><span class="s1"> </span><span class="s5">0.35</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">catch</span><span class="s1"> </span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>console</span><span class="s3">.</span><span class="s1">log</span><span class="s3">(</span><span class="s6">"Audio play error:"</span><span class="s3">,</span><span class="s1"> e</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> showAudioIndicator</span><span class="s3">(</span><span class="s1">text</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> badge </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'audio-status-badge'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> statusText </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'audio-status-text'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">badge </span><span class="s3">&amp;&amp;</span><span class="s1"> statusText</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>statusText</span><span class="s3">.</span><span class="s1">innerText </span><span class="s3">=</span><span class="s1"> </span><span class="s6">`普通話發音：「</span><span class="s3">${</span><span class="s1">text</span><span class="s3">}</span><span class="s6">」`</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>badge</span><span class="s3">.</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">remove</span><span class="s3">(</span><span class="s6">'hidden'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> hideAudioIndicator</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> badge </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'audio-status-badge'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">badge</span><span class="s3">)</span><span class="s1"> badge</span><span class="s3">.</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">add</span><span class="s3">(</span><span class="s6">'hidden'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> pcmToWav</span><span class="s3">(</span><span class="s1">pcm16Array</span><span class="s3">,</span><span class="s1"> sampleRate</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> numChannels </span><span class="s3">=</span><span class="s1"> </span><span class="s5">1</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> bytesPerSample </span><span class="s3">=</span><span class="s1"> </span><span class="s5">2</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> blockAlign </span><span class="s3">=</span><span class="s1"> numChannels </span><span class="s3">*</span><span class="s1"> bytesPerSample</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> byteRate </span><span class="s3">=</span><span class="s1"> sampleRate </span><span class="s3">*</span><span class="s1"> blockAlign</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> dataSize </span><span class="s3">=</span><span class="s1"> pcm16Array</span><span class="s3">.</span><span class="s1">length </span><span class="s3">*</span><span class="s1"> bytesPerSample</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> buffer </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">ArrayBuffer</span><span class="s3">(</span><span class="s5">44</span><span class="s1"> </span><span class="s3">+</span><span class="s1"> dataSize</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> view </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">DataView</span><span class="s3">(</span><span class="s1">buffer</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> writeString </span><span class="s3">=</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">,</span><span class="s1"> offset</span><span class="s3">,</span><span class="s1"> str</span><span class="s3">)</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">for</span><span class="s1"> </span><span class="s3">(</span><span class="s7">let</span><span class="s1"> i </span><span class="s3">=</span><span class="s1"> </span><span class="s5">0</span><span class="s3">;</span><span class="s1"> i </span><span class="s3">&lt;</span><span class="s1"> str</span><span class="s3">.</span><span class="s1">length</span><span class="s3">;</span><span class="s1"> i</span><span class="s3">++)</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">setUint8</span><span class="s3">(</span><span class="s1">offset </span><span class="s3">+</span><span class="s1"> i</span><span class="s3">,</span><span class="s1"> str</span><span class="s3">.</span><span class="s1">charCodeAt</span><span class="s3">(</span><span class="s1">i</span><span class="s3">));</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">};</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>writeString</span><span class="s3">(</span><span class="s1">view</span><span class="s3">,</span><span class="s1"> </span><span class="s5">0</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'RIFF'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint32</span><span class="s3">(</span><span class="s5">4</span><span class="s3">,</span><span class="s1"> </span><span class="s5">36</span><span class="s1"> </span><span class="s3">+</span><span class="s1"> dataSize</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>writeString</span><span class="s3">(</span><span class="s1">view</span><span class="s3">,</span><span class="s1"> </span><span class="s5">8</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'WAVE'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>writeString</span><span class="s3">(</span><span class="s1">view</span><span class="s3">,</span><span class="s1"> </span><span class="s5">12</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'fmt '</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint32</span><span class="s3">(</span><span class="s5">16</span><span class="s3">,</span><span class="s1"> </span><span class="s5">16</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint16</span><span class="s3">(</span><span class="s5">20</span><span class="s3">,</span><span class="s1"> </span><span class="s5">1</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint16</span><span class="s3">(</span><span class="s5">22</span><span class="s3">,</span><span class="s1"> numChannels</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint32</span><span class="s3">(</span><span class="s5">24</span><span class="s3">,</span><span class="s1"> sampleRate</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint32</span><span class="s3">(</span><span class="s5">28</span><span class="s3">,</span><span class="s1"> byteRate</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint16</span><span class="s3">(</span><span class="s5">32</span><span class="s3">,</span><span class="s1"> blockAlign</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint16</span><span class="s3">(</span><span class="s5">34</span><span class="s3">,</span><span class="s1"> </span><span class="s5">16</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>writeString</span><span class="s3">(</span><span class="s1">view</span><span class="s3">,</span><span class="s1"> </span><span class="s5">36</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'data'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>view</span><span class="s3">.</span><span class="s1">setUint32</span><span class="s3">(</span><span class="s5">40</span><span class="s3">,</span><span class="s1"> dataSize</span><span class="s3">,</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">let</span><span class="s1"> offset </span><span class="s3">=</span><span class="s1"> </span><span class="s5">44</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">for</span><span class="s1"> </span><span class="s3">(</span><span class="s7">let</span><span class="s1"> i </span><span class="s3">=</span><span class="s1"> </span><span class="s5">0</span><span class="s3">;</span><span class="s1"> i </span><span class="s3">&lt;</span><span class="s1"> pcm16Array</span><span class="s3">.</span><span class="s1">length</span><span class="s3">;</span><span class="s1"> i</span><span class="s3">++,</span><span class="s1"> offset </span><span class="s3">+=</span><span class="s1"> </span><span class="s5">2</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>view</span><span class="s3">.</span><span class="s1">setInt16</span><span class="s3">(</span><span class="s1">offset</span><span class="s3">,</span><span class="s1"> pcm16Array</span><span class="s3">[</span><span class="s1">i</span><span class="s3">],</span><span class="s1"> </span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">return</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Blob</span><span class="s3">([</span><span class="s1">buffer</span><span class="s3">],</span><span class="s1"> </span><span class="s3">{</span><span class="s1"> type</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'audio/wav'</span><span class="s1"> </span><span class="s3">});</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> base64ToArrayBuffer</span><span class="s3">(</span><span class="s1">base64</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> binaryString </span><span class="s3">=</span><span class="s1"> window</span><span class="s3">.</span><span class="s1">atob</span><span class="s3">(</span><span class="s1">base64</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> len </span><span class="s3">=</span><span class="s1"> binaryString</span><span class="s3">.</span><span class="s1">length</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> bytes </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Uint8Array</span><span class="s3">(</span><span class="s1">len</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">for</span><span class="s1"> </span><span class="s3">(</span><span class="s7">let</span><span class="s1"> i </span><span class="s3">=</span><span class="s1"> </span><span class="s5">0</span><span class="s3">;</span><span class="s1"> i </span><span class="s3">&lt;</span><span class="s1"> len</span><span class="s3">;</span><span class="s1"> i</span><span class="s3">++)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>bytes</span><span class="s3">[</span><span class="s1">i</span><span class="s3">]</span><span class="s1"> </span><span class="s3">=</span><span class="s1"> binaryString</span><span class="s3">.</span><span class="s1">charCodeAt</span><span class="s3">(</span><span class="s1">i</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">return</span><span class="s1"> bytes</span><span class="s3">.</span><span class="s1">buffer</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">async</span><span class="s1"> </span><span class="s7">function</span><span class="s1"> speakWithGeminiTTS</span><span class="s3">(</span><span class="s1">text</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">try</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> apiKey </span><span class="s3">=</span><span class="s1"> </span><span class="s6">""</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s2"> apiUrl </span><span class="s3">=</span><span class="s2"> </span><span class="s1">`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=</span><span class="s3">${</span><span class="s2">apiKey</span><span class="s3">}</span><span class="s1">`</span><span class="s3">;</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s1">// 直接傳送純中文，確保 AI 自動識別並以標準普通話讀出</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> payload </span><span class="s3">=</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>contents</span><span class="s3">:</span><span class="s1"> </span><span class="s3">[{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>parts</span><span class="s3">:</span><span class="s1"> </span><span class="s3">[{</span><span class="s1"> text</span><span class="s3">:</span><span class="s1"> text </span><span class="s3">}]</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">}],</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>generationConfig</span><span class="s3">:</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>responseModalities</span><span class="s3">:</span><span class="s1"> </span><span class="s3">[</span><span class="s6">"AUDIO"</span><span class="s3">],</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>speechConfig</span><span class="s3">:</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span>voiceConfig</span><span class="s3">:</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                                </span>prebuiltVoiceConfig</span><span class="s3">:</span><span class="s1"> </span><span class="s3">{</span><span class="s1"> voiceName</span><span class="s3">:</span><span class="s1"> </span><span class="s6">"Sulafat"</span><span class="s1"> </span><span class="s3">}</span><span class="s1"> </span><span class="s3">// 暖心標準國語女聲</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">};</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> res </span><span class="s3">=</span><span class="s1"> </span><span class="s7">await</span><span class="s1"> fetch</span><span class="s3">(</span><span class="s1">apiUrl</span><span class="s3">,</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>method</span><span class="s3">:</span><span class="s1"> </span><span class="s6">'POST'</span><span class="s3">,</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                    </span>headers</span><span class="s3">:</span><span class="s2"> </span><span class="s3">{</span><span class="s2"> </span><span class="s1">'Content-Type'</span><span class="s3">:</span><span class="s2"> </span><span class="s1">'application/json'</span><span class="s2"> </span><span class="s3">},</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>body</span><span class="s3">:</span><span class="s1"> </span><span class="s4">JSON</span><span class="s3">.</span><span class="s1">stringify</span><span class="s3">(</span><span class="s1">payload</span><span class="s3">)</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">});</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">res</span><span class="s3">.</span><span class="s1">ok</span><span class="s3">)</span><span class="s1"> </span><span class="s7">return</span><span class="s1"> </span><span class="s7">false</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> data </span><span class="s3">=</span><span class="s1"> </span><span class="s7">await</span><span class="s1"> res</span><span class="s3">.</span><span class="s1">json</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> part </span><span class="s3">=</span><span class="s1"> data</span><span class="s3">.</span><span class="s1">candidates</span><span class="s3">?.[</span><span class="s5">0</span><span class="s3">]?.</span><span class="s1">content</span><span class="s3">?.</span><span class="s1">parts</span><span class="s3">?.[</span><span class="s5">0</span><span class="s3">];</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> audioData </span><span class="s3">=</span><span class="s1"> part</span><span class="s3">?.</span><span class="s1">inlineData</span><span class="s3">?.</span><span class="s1">data</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> mimeType </span><span class="s3">=</span><span class="s1"> part</span><span class="s3">?.</span><span class="s1">inlineData</span><span class="s3">?.</span><span class="s1">mimeType </span><span class="s3">||</span><span class="s1"> </span><span class="s6">""</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">audioData</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">let</span><span class="s1"> sampleRate </span><span class="s3">=</span><span class="s1"> </span><span class="s5">24000</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> match </span><span class="s3">=</span><span class="s1"> mimeType</span><span class="s3">.</span><span class="s1">match</span><span class="s3">(</span><span class="s1">/rate=(\d+)/</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">match </span><span class="s3">&amp;&amp;</span><span class="s1"> match</span><span class="s3">[</span><span class="s5">1</span><span class="s3">])</span><span class="s1"> sampleRate </span><span class="s3">=</span><span class="s1"> parseInt</span><span class="s3">(</span><span class="s1">match</span><span class="s3">[</span><span class="s5">1</span><span class="s3">],</span><span class="s1"> </span><span class="s5">10</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> pcmBuffer </span><span class="s3">=</span><span class="s1"> base64ToArrayBuffer</span><span class="s3">(</span><span class="s1">audioData</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> pcm16 </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Int16Array</span><span class="s3">(</span><span class="s1">pcmBuffer</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> wavBlob </span><span class="s3">=</span><span class="s1"> pcmToWav</span><span class="s3">(</span><span class="s1">pcm16</span><span class="s3">,</span><span class="s1"> sampleRate</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> audioUrl </span><span class="s3">=</span><span class="s1"> </span><span class="s4">URL</span><span class="s3">.</span><span class="s1">createObjectURL</span><span class="s3">(</span><span class="s1">wavBlob</span><span class="s3">);</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">                    </span></span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> audio </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Audio</span><span class="s3">(</span><span class="s1">audioUrl</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">await</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Promise</span><span class="s3">((</span><span class="s1">resolve</span><span class="s3">)</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>audio</span><span class="s3">.</span><span class="s1">onended </span><span class="s3">=</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>audio</span><span class="s3">.</span><span class="s1">onerror </span><span class="s3">=</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">false</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>audio</span><span class="s3">.</span><span class="s1">play</span><span class="s3">().</span><span class="s7">catch</span><span class="s3">(()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">false</span><span class="s3">));</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">});</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">return</span><span class="s1"> </span><span class="s7">true</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">catch</span><span class="s1"> </span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>console</span><span class="s3">.</span><span class="s1">warn</span><span class="s3">(</span><span class="s6">"Gemini TTS API error:"</span><span class="s3">,</span><span class="s1"> e</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">return</span><span class="s1"> </span><span class="s7">false</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> speakWithGoogleTTS</span><span class="s3">(</span><span class="s1">text</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">return</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Promise</span><span class="s3">((</span><span class="s1">resolve</span><span class="s3">)</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">try</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s2"> url </span><span class="s3">=</span><span class="s2"> </span><span class="s1">`https://translate.google.com/translate_tts?ie=UTF-8&amp;q=</span><span class="s3">${</span><span class="s2">encodeURIComponent</span><span class="s3">(</span><span class="s2">text</span><span class="s3">)}</span><span class="s1">&amp;tl=zh-CN&amp;client=tw-ob`</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s7">const</span><span class="s1"> audio </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">Audio</span><span class="s3">(</span><span class="s1">url</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>audio</span><span class="s3">.</span><span class="s1">onended </span><span class="s3">=</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">true</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>audio</span><span class="s3">.</span><span class="s1">onerror </span><span class="s3">=</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">false</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>audio</span><span class="s3">.</span><span class="s1">play</span><span class="s3">().</span><span class="s1">then</span><span class="s3">(()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{}).</span><span class="s7">catch</span><span class="s3">(()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> resolve</span><span class="s3">(</span><span class="s7">false</span><span class="s3">));</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">catch</span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>resolve</span><span class="s3">(</span><span class="s7">false</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">});</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> getMandarinVoice</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!(</span><span class="s6">'speechSynthesis'</span><span class="s1"> </span><span class="s7">in</span><span class="s1"> window</span><span class="s3">))</span><span class="s1"> </span><span class="s7">return</span><span class="s1"> </span><span class="s7">null</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> voices </span><span class="s3">=</span><span class="s1"> window</span><span class="s3">.</span><span class="s1">speechSynthesis</span><span class="s3">.</span><span class="s1">getVoices</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">voices </span><span class="s3">||</span><span class="s1"> voices</span><span class="s3">.</span><span class="s1">length </span><span class="s3">===</span><span class="s1"> </span><span class="s5">0</span><span class="s3">)</span><span class="s1"> </span><span class="s7">return</span><span class="s1"> </span><span class="s7">null</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 嚴格檢測並排除廣東話 / 粵語語音包</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> isCantonese </span><span class="s3">=</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> lang </span><span class="s3">=</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">.</span><span class="s1">lang </span><span class="s3">||</span><span class="s1"> </span><span class="s6">''</span><span class="s3">).</span><span class="s1">toLowerCase</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> name </span><span class="s3">=</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">.</span><span class="s1">name </span><span class="s3">||</span><span class="s1"> </span><span class="s6">''</span><span class="s3">).</span><span class="s1">toLowerCase</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">return</span><span class="s1"> lang</span><span class="s3">.</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'hk'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> lang</span><span class="s3">.</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'yue'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> name</span><span class="s3">.</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'cantonese'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> name</span><span class="s3">.</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'hong kong'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> name</span><span class="s3">.</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'sin-ji'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">};</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第一優先：標準 zh-CN / zh-Hans</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">let</span><span class="s1"> v </span><span class="s3">=</span><span class="s1"> voices</span><span class="s3">.</span><span class="s1">find</span><span class="s3">(</span><span class="s1">v </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">!</span><span class="s1">isCantonese</span><span class="s3">(</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">&amp;&amp;</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">.</span><span class="s1">lang</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">()</span><span class="s1"> </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'zh-cn'</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">lang</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">()</span><span class="s1"> </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'zh_cn'</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">lang</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">()</span><span class="s1"> </span><span class="s3">===</span><span class="s1"> </span><span class="s6">'zh-hans-cn'</span><span class="s3">));</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">            </span></span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第二優先：知名普通話語音庫名稱 (TingTing, Yaoyao, HuiHui, Putonghua)</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s2"> kw </span><span class="s3">=</span><span class="s2"> </span><span class="s3">[</span><span class="s1">'mandarin'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'putonghua'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'tingting'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'yaoyao'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'huihui'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'kangkang'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'cmn'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'zh-hans'</span><span class="s3">];</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>v </span><span class="s3">=</span><span class="s1"> voices</span><span class="s3">.</span><span class="s1">find</span><span class="s3">(</span><span class="s1">v </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">!</span><span class="s1">isCantonese</span><span class="s3">(</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">&amp;&amp;</span><span class="s1"> kw</span><span class="s3">.</span><span class="s1">some</span><span class="s3">(</span><span class="s1">k </span><span class="s3">=&gt;</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">lang</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">().</span><span class="s1">includes</span><span class="s3">(</span><span class="s1">k</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">name</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">().</span><span class="s1">includes</span><span class="s3">(</span><span class="s1">k</span><span class="s3">)));</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第三優先：國語 zh-TW 台灣國語（比粵語更符合普通話教學需要）</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>v </span><span class="s3">=</span><span class="s1"> voices</span><span class="s3">.</span><span class="s1">find</span><span class="s3">(</span><span class="s1">v </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">!</span><span class="s1">isCantonese</span><span class="s3">(</span><span class="s1">v</span><span class="s3">)</span><span class="s1"> </span><span class="s3">&amp;&amp;</span><span class="s1"> </span><span class="s3">(</span><span class="s1">v</span><span class="s3">.</span><span class="s1">lang</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">().</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'tw'</span><span class="s3">)</span><span class="s1"> </span><span class="s3">||</span><span class="s1"> v</span><span class="s3">.</span><span class="s1">name</span><span class="s3">.</span><span class="s1">toLowerCase</span><span class="s3">().</span><span class="s1">includes</span><span class="s3">(</span><span class="s6">'taiwan'</span><span class="s3">)));</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">return</span><span class="s1"> v</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> speakWithWebSpeechMandarin</span><span class="s3">(</span><span class="s1">text</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!(</span><span class="s6">'speechSynthesis'</span><span class="s1"> </span><span class="s7">in</span><span class="s1"> window</span><span class="s3">))</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>hideAudioIndicator</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">return</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>window</span><span class="s3">.</span><span class="s1">speechSynthesis</span><span class="s3">.</span><span class="s1">cancel</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> utterance </span><span class="s3">=</span><span class="s1"> </span><span class="s7">new</span><span class="s1"> </span><span class="s4">SpeechSynthesisUtterance</span><span class="s3">(</span><span class="s1">text</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>utterance</span><span class="s3">.</span><span class="s1">lang </span><span class="s3">=</span><span class="s1"> </span><span class="s6">'zh-CN'</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>utterance</span><span class="s3">.</span><span class="s1">rate </span><span class="s3">=</span><span class="s1"> </span><span class="s5">0.85</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> mandarinVoice </span><span class="s3">=</span><span class="s1"> getMandarinVoice</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">mandarinVoice</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>utterance</span><span class="s3">.</span><span class="s1">voice </span><span class="s3">=</span><span class="s1"> mandarinVoice</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>utterance</span><span class="s3">.</span><span class="s1">onend </span><span class="s3">=</span><span class="s1"> hideAudioIndicator</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>utterance</span><span class="s3">.</span><span class="s1">onerror </span><span class="s3">=</span><span class="s1"> hideAudioIndicator</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>window</span><span class="s3">.</span><span class="s1">speechSynthesis</span><span class="s3">.</span><span class="s1">speak</span><span class="s3">(</span><span class="s1">utterance</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">else</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">                </span></span><span class="s1">// 如果裝置完全沒有普通話語音庫，寧可不發聲也不播放廣東話，並於1.2秒後隱藏指示標籤</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>console</span><span class="s3">.</span><span class="s1">warn</span><span class="s3">(</span><span class="s6">"裝置暫無普通話語音庫，已自動封鎖廣東話播放。"</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>setTimeout</span><span class="s3">(</span><span class="s1">hideAudioIndicator</span><span class="s3">,</span><span class="s1"> </span><span class="s5">1200</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">async</span><span class="s1"> </span><span class="s7">function</span><span class="s1"> speakMandarin</span><span class="s3">(</span><span class="s1">text</span><span class="s3">,</span><span class="s1"> event</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">event</span><span class="s3">)</span><span class="s1"> event</span><span class="s3">.</span><span class="s1">stopPropagation</span><span class="s3">();</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>showAudioIndicator</span><span class="s3">(</span><span class="s1">text</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第一層：Gemini AI TTS 標準國語</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> geminiSuccess </span><span class="s3">=</span><span class="s1"> </span><span class="s7">await</span><span class="s1"> speakWithGeminiTTS</span><span class="s3">(</span><span class="s1">text</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">geminiSuccess</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>hideAudioIndicator</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">return</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第二層：線上標準普通話音訊</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> onlineSuccess </span><span class="s3">=</span><span class="s1"> </span><span class="s7">await</span><span class="s1"> speakWithGoogleTTS</span><span class="s3">(</span><span class="s1">text</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">onlineSuccess</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>hideAudioIndicator</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">return</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 第三層：Web Speech API（嚴格過濾並排除廣東話）</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>speakWithWebSpeechMandarin</span><span class="s3">(</span><span class="s1">text</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> speakFullSentence</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(!</span><span class="s1">currentWeather</span><span class="s3">)</span><span class="s1"> </span><span class="s7">return</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>speakMandarin</span><span class="s3">(</span><span class="s6">`現在為大家播報天氣，今天</span><span class="s3">${</span><span class="s1">currentWeather</span><span class="s3">.</span><span class="s1">word</span><span class="s3">}</span><span class="s6">`</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> handleDragOver</span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>e</span><span class="s3">.</span><span class="s1">preventDefault</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'drop-target'</span><span class="s3">).</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">add</span><span class="s3">(</span><span class="s6">'drag-over'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> handleDragLeave</span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'drop-target'</span><span class="s3">).</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">remove</span><span class="s3">(</span><span class="s6">'drag-over'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> handleDrop</span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>e</span><span class="s3">.</span><span class="s1">preventDefault</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'drop-target'</span><span class="s3">).</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">remove</span><span class="s3">(</span><span class="s6">'drag-over'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> wordId </span><span class="s3">=</span><span class="s1"> e</span><span class="s3">.</span><span class="s1">dataTransfer</span><span class="s3">.</span><span class="s1">getData</span><span class="s3">(</span><span class="s6">'text/plain'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> targetItem </span><span class="s3">=</span><span class="s1"> </span><span class="s4">WEATHER_DATA</span><span class="s3">.</span><span class="s1">find</span><span class="s3">(</span><span class="s1">w </span><span class="s3">=&gt;</span><span class="s1"> w</span><span class="s3">.</span><span class="s1">id </span><span class="s3">===</span><span class="s1"> wordId</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">targetItem</span><span class="s3">)</span><span class="s1"> checkAnswer</span><span class="s3">(</span><span class="s1">targetItem</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> handleWordCardClick</span><span class="s3">(</span><span class="s1">item</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>checkAnswer</span><span class="s3">(</span><span class="s1">item</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> checkAnswer</span><span class="s3">(</span><span class="s1">item</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> dropTarget </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'drop-target'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> feedbackEl </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'feedback-message'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> readBtn </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'btn-read-sentence'</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">item</span><span class="s3">.</span><span class="s1">id </span><span class="s3">===</span><span class="s1"> currentWeather</span><span class="s3">.</span><span class="s1">id</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">// 答對邏輯</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>playSound</span><span class="s3">(</span><span class="s6">'correct'</span><span class="s3">);</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>dropTarget</span><span class="s3">.</span><span class="s2">innerHTML </span><span class="s3">=</span><span class="s2"> </span><span class="s1">`&lt;span class="font-black text-amber-300 text-xl md:text-2xl animate-pulse"&gt;</span><span class="s3">${</span><span class="s2">item</span><span class="s3">.</span><span class="s2">word</span><span class="s3">}</span><span class="s1">&lt;/span&gt;`</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>dropTarget</span><span class="s3">.</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">remove</span><span class="s3">(</span><span class="s6">'border-dashed'</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'border-sky-400/80'</span><span class="s3">);</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>dropTarget</span><span class="s3">.</span><span class="s2">classList</span><span class="s3">.</span><span class="s2">add</span><span class="s3">(</span><span class="s1">'border-solid'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'border-emerald-400'</span><span class="s3">,</span><span class="s2"> </span><span class="s1">'bg-emerald-950/80'</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>feedbackEl</span><span class="s3">.</span><span class="s1">innerText </span><span class="s3">=</span><span class="s1"> </span><span class="s6">"🎉 太棒了！答對了！"</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>feedbackEl</span><span class="s3">.</span><span class="s2">className </span><span class="s3">=</span><span class="s2"> </span><span class="s1">"text-xs md:text-sm font-bold text-emerald-600 mt-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm block animate-bounce"</span><span class="s3">;</span></p>
-<p class="p7"><span class="s1"><span class="Apple-converted-space">                </span></span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>readBtn</span><span class="s3">.</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">remove</span><span class="s3">(</span><span class="s6">'hidden'</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">// 答對五彩紙屑動畫</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s1">window</span><span class="s3">.</span><span class="s1">confetti</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>confetti</span><span class="s3">({</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>particleCount</span><span class="s3">:</span><span class="s1"> </span><span class="s5">65</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>spread</span><span class="s3">:</span><span class="s1"> </span><span class="s5">60</span><span class="s3">,</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                        </span>origin</span><span class="s3">:</span><span class="s1"> </span><span class="s3">{</span><span class="s1"> y</span><span class="s3">:</span><span class="s1"> </span><span class="s5">0.7</span><span class="s1"> </span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span></span><span class="s3">});</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span><span class="s1"> </span><span class="s7">else</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">// 答錯邏輯</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>playSound</span><span class="s3">(</span><span class="s6">'wrong'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>feedbackEl</span><span class="s3">.</span><span class="s1">innerText </span><span class="s3">=</span><span class="s1"> </span><span class="s6">`❌ 不對哦，這是「</span><span class="s3">${</span><span class="s1">currentWeather</span><span class="s3">.</span><span class="s1">word</span><span class="s3">}</span><span class="s6">」嗎？再想想看～`</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>feedbackEl</span><span class="s3">.</span><span class="s2">className </span><span class="s3">=</span><span class="s2"> </span><span class="s1">"text-xs md:text-sm font-bold text-rose-600 mt-1 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 shadow-sm block"</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> clearSlot</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> dropTarget </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'drop-target'</span><span class="s3">);</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span>dropTarget</span><span class="s3">.</span><span class="s2">innerHTML </span><span class="s3">=</span><span class="s2"> </span><span class="s1">`&lt;span id="drop-placeholder" class="text-xs text-sky-400 font-normal"&gt;拖曳或點擊詞語&lt;/span&gt;`</span><span class="s3">;</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">            </span>dropTarget</span><span class="s3">.</span><span class="s2">className </span><span class="s3">=</span><span class="s2"> </span><span class="s1">"drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300"</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'btn-read-sentence'</span><span class="s3">).</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">add</span><span class="s3">(</span><span class="s6">'hidden'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'feedback-message'</span><span class="s3">).</span><span class="s1">classList</span><span class="s3">.</span><span class="s1">add</span><span class="s3">(</span><span class="s6">'hidden'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> renderWordGrid</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> grid </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'words-grid'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>grid</span><span class="s3">.</span><span class="s1">innerHTML </span><span class="s3">=</span><span class="s1"> </span><span class="s6">''</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s4">WEATHER_DATA</span><span class="s3">.</span><span class="s1">forEach</span><span class="s3">(</span><span class="s1">item </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s7">const</span><span class="s1"> card </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">createElement</span><span class="s3">(</span><span class="s6">'div'</span><span class="s3">);</span></p>
-<p class="p2"><span class="s2"><span class="Apple-converted-space">                </span>card</span><span class="s3">.</span><span class="s2">className </span><span class="s3">=</span><span class="s2"> </span><span class="s1">"drag-card bg-sky-50/90 hover:bg-amber-50 border-2 border-sky-200 hover:border-amber-400 rounded-xl p-2 flex flex-col items-center justify-between cursor-grab active:cursor-grabbing shadow-sm relative transition"</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>card</span><span class="s3">.</span><span class="s1">setAttribute</span><span class="s3">(</span><span class="s6">'draggable'</span><span class="s3">,</span><span class="s1"> </span><span class="s6">'true'</span><span class="s3">);</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>card</span><span class="s3">.</span><span class="s1">innerHTML </span><span class="s3">=</span><span class="s1"> </span><span class="s6">`</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;button onclick="speakMandarin('</span><span class="s3">${</span><span class="s2">item</span><span class="s3">.</span><span class="s2">word</span><span class="s3">}</span><span class="s1">', event)" title="聽標準普通話發音" class="absolute top-1 right-1 w-6 h-6 bg-white hover:bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-[10px] shadow-sm transition active:scale-90 border border-sky-200"&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                        </span>🔊</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;/button&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;span class="text-[11px] font-semibold text-amber-600 tracking-wider mt-0.5"&gt;</span><span class="s3">${</span><span class="s2">item</span><span class="s3">.</span><span class="s2">pinyin</span><span class="s3">}</span><span class="s1">&lt;/span&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                    </span>&lt;span class="text-lg md:text-xl font-black text-slate-800 my-0.5 tracking-wide"&gt;</span><span class="s3">${</span><span class="s2">item</span><span class="s3">.</span><span class="s2">word</span><span class="s3">}</span><span class="s1">&lt;/span&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                </span>`</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>card</span><span class="s3">.</span><span class="s1">addEventListener</span><span class="s3">(</span><span class="s6">'dragstart'</span><span class="s3">,</span><span class="s1"> </span><span class="s3">(</span><span class="s1">e</span><span class="s3">)</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>e</span><span class="s3">.</span><span class="s1">dataTransfer</span><span class="s3">.</span><span class="s1">setData</span><span class="s3">(</span><span class="s6">'text/plain'</span><span class="s3">,</span><span class="s1"> item</span><span class="s3">.</span><span class="s1">id</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">});</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>card</span><span class="s3">.</span><span class="s1">addEventListener</span><span class="s3">(</span><span class="s6">'click'</span><span class="s3">,</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                    </span>handleWordCardClick</span><span class="s3">(</span><span class="s1">item</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span></span><span class="s3">});</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>grid</span><span class="s3">.</span><span class="s1">appendChild</span><span class="s3">(</span><span class="s1">card</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">});</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> toggleMute</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>isMuted </span><span class="s3">=</span><span class="s1"> </span><span class="s3">!</span><span class="s1">isMuted</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'mute-icon'</span><span class="s3">).</span><span class="s1">innerText </span><span class="s3">=</span><span class="s1"> isMuted </span><span class="s3">?</span><span class="s1"> </span><span class="s6">'🔇'</span><span class="s1"> </span><span class="s3">:</span><span class="s1"> </span><span class="s6">'🔊'</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'mute-text'</span><span class="s3">).</span><span class="s1">innerText </span><span class="s3">=</span><span class="s1"> isMuted </span><span class="s3">?</span><span class="s1"> </span><span class="s6">'靜音中'</span><span class="s1"> </span><span class="s3">:</span><span class="s1"> </span><span class="s6">'音效開'</span><span class="s3">;</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s7">function</span><span class="s1"> initGame</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">// 隨機選取一種天氣</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> randomIndex </span><span class="s3">=</span><span class="s1"> </span><span class="s4">Math</span><span class="s3">.</span><span class="s1">floor</span><span class="s3">(</span><span class="s4">Math</span><span class="s3">.</span><span class="s1">random</span><span class="s3">()</span><span class="s1"> </span><span class="s3">*</span><span class="s1"> </span><span class="s4">WEATHER_DATA</span><span class="s3">.</span><span class="s1">length</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>currentWeather </span><span class="s3">=</span><span class="s1"> </span><span class="s4">WEATHER_DATA</span><span class="s3">[</span><span class="s1">randomIndex</span><span class="s3">];</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p6"><span class="s2"><span class="Apple-converted-space">            </span></span><span class="s1">// 渲染天氣 SVG 圖案</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">const</span><span class="s1"> imageContainer </span><span class="s3">=</span><span class="s1"> document</span><span class="s3">.</span><span class="s1">getElementById</span><span class="s3">(</span><span class="s6">'weather-image-container'</span><span class="s3">);</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>imageContainer</span><span class="s3">.</span><span class="s1">innerHTML </span><span class="s3">=</span><span class="s1"> </span><span class="s6">`</span></p>
-<p class="p5"><span class="s6"><span class="Apple-converted-space">                </span></span><span class="s3">${</span><span class="s1">currentWeather</span><span class="s3">.</span><span class="s1">svg</span><span class="s3">}</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">                </span>&lt;span class="text-[10px] text-sky-300/80 font-mono mt-0.5"&gt;天氣情境圖&lt;/span&gt;</span></p>
-<p class="p2"><span class="s1"><span class="Apple-converted-space">            </span>`</span><span class="s3">;</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>clearSlot</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>renderWordGrid</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">}</span></p>
-<p class="p7"><span class="s8"></span><br></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span>window</span><span class="s3">.</span><span class="s1">onload </span><span class="s3">=</span><span class="s1"> </span><span class="s7">function</span><span class="s3">()</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span>initGame</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s7">if</span><span class="s1"> </span><span class="s3">(</span><span class="s6">'speechSynthesis'</span><span class="s1"> </span><span class="s7">in</span><span class="s1"> window</span><span class="s3">)</span><span class="s1"> </span><span class="s3">{</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">                </span>window</span><span class="s3">.</span><span class="s1">speechSynthesis</span><span class="s3">.</span><span class="s1">onvoiceschanged </span><span class="s3">=</span><span class="s1"> </span><span class="s3">()</span><span class="s1"> </span><span class="s3">=&gt;</span><span class="s1"> getMandarinVoice</span><span class="s3">();</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">            </span></span><span class="s3">}</span></p>
-<p class="p5"><span class="s1"><span class="Apple-converted-space">        </span></span><span class="s3">};</span></p>
-<p class="p3"><span class="s2"><span class="Apple-converted-space">    </span></span><span class="s3">&lt;/</span><span class="s1">script</span><span class="s3">&gt;</span></p>
-<p class="p3"><span class="s3">&lt;/</span><span class="s1">body</span><span class="s3">&gt;</span></p>
-<p class="p3"><span class="s3">&lt;/</span><span class="s1">html</span><span class="s3">&gt;</span></p>
+<body class="flex flex-col items-center justify-between p-2 md:p-5 text-slate-800">
+
+    <!-- 頁頭與標題區 -->
+    <header class="w-full max-w-5xl flex items-center justify-between gap-2 mb-3 bg-white/80 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-sm border border-sky-100 relative">
+        <div class="flex items-center gap-2.5">
+            <span class="text-2xl md:text-3xl">🎙️</span>
+            <div>
+                <h1 class="text-lg md:text-xl font-black text-sky-900 tracking-wide">小小天氣播報員</h1>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button onclick="initGame()" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 font-bold text-xs md:text-sm px-3 py-2 rounded-xl shadow transition flex items-center gap-1">
+                <span>🔄</span> 換一局天氣
+            </button>
+            <button onclick="toggleMute()" class="bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1" id="btn-mute">
+                <span id="mute-icon">🔊</span> <span id="mute-text" class="hidden sm:inline">音效開</span>
+            </button>
+        </div>
+
+        <!-- 頂部普通話播放中動態標籤 -->
+        <div id="audio-status-badge" class="hidden absolute left-1/2 -translate-x-1/2 -bottom-3 bg-indigo-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1 z-20 audio-playing-badge">
+            <span class="animate-spin">🗣️</span> <span id="audio-status-text">正在以普通話發音...</span>
+        </div>
+    </header>
+
+    <!-- 主遊戲區域：左側天氣直播間 (7欄)，右側詞語卡片盤 (5欄) - md: 即開啟並排 -->
+    <main class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 items-stretch my-auto">
+        
+        <!-- 左側：電視天氣直播間 (7 欄) -->
+        <section class="md:col-span-7 flex flex-col justify-between w-full">
+            <div class="tv-frame w-full rounded-2xl p-3 md:p-4 relative overflow-hidden flex flex-col items-center">
+                <!-- TV Live 直播狀態 -->
+                <div class="w-full flex justify-between items-center mb-2 text-xs font-bold text-white tracking-widest border-b border-slate-700/60 pb-1.5">
+                    <span class="flex items-center gap-1 text-red-500 bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800 text-[11px]">
+                        <span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span> LIVE 直播中
+                    </span>
+                    <span class="text-sky-300 font-mono text-[11px]">CHANNEL 2 - 普通話天氣台</span>
+                </div>
+
+                <!-- 天氣圖片顯示區 -->
+                <div id="weather-image-container" class="w-full h-36 sm:h-44 md:h-48 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-xl flex flex-col items-center justify-center relative p-2 shadow-inner border border-slate-700">
+                    <!-- 動態 SVG 天氣圖案由 JS 渲染 -->
+                </div>
+
+                <!-- 填空句子區：現在為大家播報天氣，今天[天氣]。 -->
+                <div class="w-full bg-slate-800/90 rounded-xl p-2.5 mt-3 border border-slate-700 flex flex-wrap items-center justify-center gap-1.5 md:gap-2 text-white text-sm sm:text-base md:text-lg font-bold">
+                    <span class="text-sky-200 tracking-wider">現在為大家播報天氣，今天</span>
+                    
+                    <!-- 放置目標區 Drop Zone -->
+                    <div id="drop-target" 
+                         class="drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300"
+                         ondragover="handleDragOver(event)"
+                         ondragleave="handleDragLeave(event)"
+                         ondrop="handleDrop(event)"
+                         onclick="clearSlot()">
+                        <span id="drop-placeholder" class="text-xs text-sky-400 font-normal">拖曳或點擊詞語</span>
+                    </div>
+
+                    <span class="text-sky-200">。</span>
+                </div>
+            </div>
+
+            <!-- 答對反饋與全句普通話朗讀按鈕 -->
+            <div class="mt-2 min-h-[48px] w-full flex flex-col items-center justify-center">
+                <button id="btn-read-sentence" 
+                        onclick="speakFullSentence()" 
+                        class="hidden bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-sm md:text-base font-bold px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition animate-bounce border border-emerald-300">
+                    <span id="read-btn-icon" class="text-lg">📢</span> 按一下發聲：普通話讀出整句
+                </button>
+                <p id="feedback-message" class="text-xs md:text-sm font-bold text-slate-700 hidden mt-1 px-3 py-1 rounded-full bg-white/90 shadow-sm border"></p>
+            </div>
+        </section>
+
+        <!-- 右側：天氣詞語卡片盤 (5 欄) -->
+        <section class="md:col-span-5 w-full bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-md border border-sky-100 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-2.5 border-b border-sky-100 pb-2">
+                    <h2 class="text-sm md:text-base font-bold text-sky-900 flex items-center gap-1.5">
+                        <span>🏷️</span> 天氣詞語卡片區
+                    </h2>
+                    <span class="text-[11px] text-indigo-600 font-semibold">（按 🔊 聽國語發音）</span>
+                </div>
+
+                <!-- 8 個天氣詞語網格卡片區 (2欄 layout) -->
+                <div id="words-grid" class="grid grid-cols-2 gap-2">
+                    <!-- JavaScript 動態生成 8 個天氣詞語 -->
+                </div>
+            </div>
+
+            <p class="text-[11px] text-center text-sky-600/80 font-medium mt-3 pt-2 border-t border-sky-100">
+                💡 提示：點擊右側詞語卡片，或拖曳至左側填空框。
+            </p>
+        </section>
+
+    </main>
+
+    <!-- 頁腳版權聲明 -->
+    <footer class="w-full max-w-5xl text-center text-[11px] text-sky-700 font-medium py-2 mt-2 border-t border-sky-200/60">
+        香港小學普通話科「小小天氣播報員」自主學習小遊戲 &copy; 自主學習數位教材
+    </footer>
+
+    <script>
+        // 8 種天氣完整資料庫 (包含漢字、拼音、向量圖案 SVG)
+        const WEATHER_DATA = [
+            {
+                id: 'qingtian',
+                word: '晴天',
+                pinyin: 'qīng tiān',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="22" fill="#FBBF24"/>
+                        <g stroke="#FBBF24" stroke-width="4" stroke-linecap="round">
+                            <line x1="50" y1="12" x2="50" y2="20"/>
+                            <line x1="50" y1="80" x2="50" y2="88"/>
+                            <line x1="12" y1="50" x2="20" y2="50"/>
+                            <line x1="80" y1="50" x2="88" y2="50"/>
+                            <line x1="23" y1="23" x2="29" y2="29"/>
+                            <line x1="71" y1="71" x2="77" y2="77"/>
+                            <line x1="23" y1="77" x2="29" y2="71"/>
+                            <line x1="71" y1="29" x2="77" y2="23"/>
+                        </g>
+                      </svg>`
+            },
+            {
+                id: 'duoyun',
+                word: '多雲',
+                pinyin: 'duō yún',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <circle cx="38" cy="38" r="18" fill="#FBBF24"/>
+                        <path d="M 30 65 A 14 14 0 0 1 45 48 A 18 18 0 0 1 78 52 A 12 12 0 0 1 82 72 Z" fill="#E2E8F0"/>
+                        <path d="M 20 72 A 12 12 0 0 1 32 58 A 16 16 0 0 1 62 62 A 12 12 0 0 1 65 78 Z" fill="#CBD5E1"/>
+                      </svg>`
+            },
+            {
+                id: 'yintian',
+                word: '陰天',
+                pinyin: 'yīn tiān',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <path d="M 25 50 A 16 16 0 0 1 50 38 A 20 20 0 0 1 85 46 A 15 15 0 0 1 85 72 Z" fill="#94A3B8"/>
+                        <path d="M 15 72 A 14 14 0 0 1 30 56 A 18 18 0 0 1 65 60 A 14 14 0 0 1 68 82 Z" fill="#64748B"/>
+                      </svg>`
+            },
+            {
+                id: 'xiaoyu',
+                word: '小雨',
+                pinyin: 'xiǎo yǔ',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <path d="M 20 48 A 14 14 0 0 1 42 36 A 18 18 0 0 1 78 44 A 12 12 0 0 1 78 66 Z" fill="#94A3B8"/>
+                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
+                            <line x1="35" y1="72" x2="30" y2="82"/>
+                            <line x1="55" y1="72" x2="50" y2="82"/>
+                            <line x1="70" y1="72" x2="65" y2="82"/>
+                        </g>
+                      </svg>`
+            },
+            {
+                id: 'zhongyu',
+                word: '中雨',
+                pinyin: 'zhōng yǔ',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <path d="M 20 45 A 14 14 0 0 1 42 33 A 18 18 0 0 1 78 41 A 12 12 0 0 1 78 63 Z" fill="#64748B"/>
+                        <g stroke="#0EA5E9" stroke-width="3.5" stroke-linecap="round">
+                            <line x1="30" y1="68" x2="23" y2="82"/>
+                            <line x1="45" y1="68" x2="38" y2="82"/>
+                            <line x1="60" y1="68" x2="53" y2="82"/>
+                            <line x1="75" y1="68" x2="68" y2="82"/>
+                        </g>
+                      </svg>`
+            },
+            {
+                id: 'dayu',
+                word: '大雨',
+                pinyin: 'dà yǔ',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <path d="M 20 42 A 14 14 0 0 1 42 30 A 18 18 0 0 1 78 38 A 12 12 0 0 1 78 60 Z" fill="#475569"/>
+                        <g stroke="#0284C7" stroke-width="4" stroke-linecap="round">
+                            <line x1="25" y1="65" x2="15" y2="85"/>
+                            <line x1="40" y1="65" x2="30" y2="85"/>
+                            <line x1="55" y1="65" x2="45" y2="85"/>
+                            <line x1="70" y1="65" x2="60" y2="85"/>
+                        </g>
+                      </svg>`
+            },
+            {
+                id: 'zhenyu',
+                word: '陣雨',
+                pinyin: 'zhèn yǔ',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <circle cx="32" cy="35" r="15" fill="#FBBF24"/>
+                        <path d="M 25 50 A 14 14 0 0 1 45 36 A 18 18 0 0 1 80 42 A 12 12 0 0 1 80 64 Z" fill="#94A3B8"/>
+                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
+                            <line x1="38" y1="70" x2="30" y2="82"/>
+                            <line x1="58" y1="70" x2="50" y2="82"/>
+                            <line x1="72" y1="70" x2="64" y2="82"/>
+                        </g>
+                      </svg>`
+            },
+            {
+                id: 'leiyu',
+                word: '雷雨',
+                pinyin: 'léi yǔ',
+                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
+                        <path d="M 20 40 A 14 14 0 0 1 42 28 A 18 18 0 0 1 78 36 A 12 12 0 0 1 78 58 Z" fill="#334155"/>
+                        <polygon points="48,54 38,70 46,70 40,86 58,66 49,66" fill="#F59E0B"/>
+                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
+                            <line x1="26" y1="64" x2="18" y2="80"/>
+                            <line x1="72" y1="64" x2="64" y2="80"/>
+                        </g>
+                      </svg>`
+            }
+        ];
+
+        let currentWeather = null;
+        let isMuted = false;
+        let audioCtx = null;
+
+        function playSound(type) {
+            if (isMuted) return;
+            try {
+                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+
+                if (type === 'correct') {
+                    // 答對雙提示音
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.12);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now);
+                    osc.stop(now + 0.4);
+                } else if (type === 'wrong') {
+                    // 答錯低音
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.setValueAtTime(174.61, now + 0.15);
+                    gain.gain.setValueAtTime(0.3, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                }
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
+
+        function showAudioIndicator(text) {
+            const badge = document.getElementById('audio-status-badge');
+            const statusText = document.getElementById('audio-status-text');
+            if (badge && statusText) {
+                statusText.innerText = `普通話發音：「${text}」`;
+                badge.classList.remove('hidden');
+            }
+        }
+
+        function hideAudioIndicator() {
+            const badge = document.getElementById('audio-status-badge');
+            if (badge) badge.classList.add('hidden');
+        }
+
+        function pcmToWav(pcm16Array, sampleRate) {
+            const numChannels = 1;
+            const bytesPerSample = 2;
+            const blockAlign = numChannels * bytesPerSample;
+            const byteRate = sampleRate * blockAlign;
+            const dataSize = pcm16Array.length * bytesPerSample;
+            const buffer = new ArrayBuffer(44 + dataSize);
+            const view = new DataView(buffer);
+
+            const writeString = (v, offset, str) => {
+                for (let i = 0; i < str.length; i++) v.setUint8(offset + i, str.charCodeAt(i));
+            };
+
+            writeString(view, 0, 'RIFF');
+            view.setUint32(4, 36 + dataSize, true);
+            writeString(view, 8, 'WAVE');
+            writeString(view, 12, 'fmt ');
+            view.setUint32(16, 16, true);
+            view.setUint16(20, 1, true);
+            view.setUint16(22, numChannels, true);
+            view.setUint32(24, sampleRate, true);
+            view.setUint32(28, byteRate, true);
+            view.setUint16(32, blockAlign, true);
+            view.setUint16(34, 16, true);
+            writeString(view, 36, 'data');
+            view.setUint32(40, dataSize, true);
+
+            let offset = 44;
+            for (let i = 0; i < pcm16Array.length; i++, offset += 2) {
+                view.setInt16(offset, pcm16Array[i], true);
+            }
+
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
+
+        function base64ToArrayBuffer(base64) {
+            const binaryString = window.atob(base64);
+            const len = binaryString.length;
+            const bytes = new Uint8Array(len);
+            for (let i = 0; i < len; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            return bytes.buffer;
+        }
+
+        async function speakWithGeminiTTS(text) {
+            try {
+                const apiKey = "";
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+                
+                // 直接傳送純中文，確保 AI 自動識別並以標準普通話讀出
+                const payload = {
+                    contents: [{
+                        parts: [{ text: text }]
+                    }],
+                    generationConfig: {
+                        responseModalities: ["AUDIO"],
+                        speechConfig: {
+                            voiceConfig: {
+                                prebuiltVoiceConfig: { voiceName: "Sulafat" } // 暖心標準國語女聲
+                            }
+                        }
+                    }
+                };
+
+                const res = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!res.ok) return false;
+
+                const data = await res.json();
+                const part = data.candidates?.[0]?.content?.parts?.[0];
+                const audioData = part?.inlineData?.data;
+                const mimeType = part?.inlineData?.mimeType || "";
+
+                if (audioData) {
+                    let sampleRate = 24000;
+                    const match = mimeType.match(/rate=(\d+)/);
+                    if (match && match[1]) sampleRate = parseInt(match[1], 10);
+
+                    const pcmBuffer = base64ToArrayBuffer(audioData);
+                    const pcm16 = new Int16Array(pcmBuffer);
+                    const wavBlob = pcmToWav(pcm16, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    
+                    const audio = new Audio(audioUrl);
+                    await new Promise((resolve) => {
+                        audio.onended = () => resolve(true);
+                        audio.onerror = () => resolve(false);
+                        audio.play().catch(() => resolve(false));
+                    });
+                    return true;
+                }
+            } catch (e) {
+                console.warn("Gemini TTS API error:", e);
+            }
+            return false;
+        }
+
+        function speakWithGoogleTTS(text) {
+            return new Promise((resolve) => {
+                try {
+                    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=zh-CN&client=tw-ob`;
+                    const audio = new Audio(url);
+                    audio.onended = () => resolve(true);
+                    audio.onerror = () => resolve(false);
+                    audio.play().then(() => {}).catch(() => resolve(false));
+                } catch(e) {
+                    resolve(false);
+                }
+            });
+        }
+
+        function getMandarinVoice() {
+            if (!('speechSynthesis' in window)) return null;
+            const voices = window.speechSynthesis.getVoices();
+            if (!voices || voices.length === 0) return null;
+
+            // 嚴格檢測並排除廣東話 / 粵語語音包
+            const isCantonese = (v) => {
+                const lang = (v.lang || '').toLowerCase();
+                const name = (v.name || '').toLowerCase();
+                return lang.includes('hk') || lang.includes('yue') || name.includes('cantonese') || name.includes('hong kong') || name.includes('sin-ji');
+            };
+
+            // 第一優先：標準 zh-CN / zh-Hans
+            let v = voices.find(v => !isCantonese(v) && (v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh_cn' || v.lang.toLowerCase() === 'zh-hans-cn'));
+            
+            // 第二優先：知名普通話語音庫名稱 (TingTing, Yaoyao, HuiHui, Putonghua)
+            if (!v) {
+                const kw = ['mandarin', 'putonghua', 'tingting', 'yaoyao', 'huihui', 'kangkang', 'cmn', 'zh-hans'];
+                v = voices.find(v => !isCantonese(v) && kw.some(k => v.lang.toLowerCase().includes(k) || v.name.toLowerCase().includes(k)));
+            }
+
+            // 第三優先：國語 zh-TW 台灣國語（比粵語更符合普通話教學需要）
+            if (!v) {
+                v = voices.find(v => !isCantonese(v) && (v.lang.toLowerCase().includes('tw') || v.name.toLowerCase().includes('taiwan')));
+            }
+
+            return v;
+        }
+
+        function speakWithWebSpeechMandarin(text) {
+            if (!('speechSynthesis' in window)) {
+                hideAudioIndicator();
+                return;
+            }
+
+            window.speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'zh-CN';
+            utterance.rate = 0.85;
+
+            const mandarinVoice = getMandarinVoice();
+            if (mandarinVoice) {
+                utterance.voice = mandarinVoice;
+                utterance.onend = hideAudioIndicator;
+                utterance.onerror = hideAudioIndicator;
+                window.speechSynthesis.speak(utterance);
+            } else {
+                // 如果裝置完全沒有普通話語音庫，寧可不發聲也不播放廣東話，並於1.2秒後隱藏指示標籤
+                console.warn("裝置暫無普通話語音庫，已自動封鎖廣東話播放。");
+                setTimeout(hideAudioIndicator, 1200);
+            }
+        }
+
+        async function speakMandarin(text, event) {
+            if (event) event.stopPropagation();
+
+            showAudioIndicator(text);
+
+            // 第一層：Gemini AI TTS 標準國語
+            const geminiSuccess = await speakWithGeminiTTS(text);
+            if (geminiSuccess) {
+                hideAudioIndicator();
+                return;
+            }
+
+            // 第二層：線上標準普通話音訊
+            const onlineSuccess = await speakWithGoogleTTS(text);
+            if (onlineSuccess) {
+                hideAudioIndicator();
+                return;
+            }
+
+            // 第三層：Web Speech API（嚴格過濾並排除廣東話）
+            speakWithWebSpeechMandarin(text);
+        }
+
+        function speakFullSentence() {
+            if (!currentWeather) return;
+            speakMandarin(`現在為大家播報天氣，今天${currentWeather.word}`);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('drop-target').classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            document.getElementById('drop-target').classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('drop-target').classList.remove('drag-over');
+            const wordId = e.dataTransfer.getData('text/plain');
+            const targetItem = WEATHER_DATA.find(w => w.id === wordId);
+            if (targetItem) checkAnswer(targetItem);
+        }
+
+        function handleWordCardClick(item) {
+            checkAnswer(item);
+        }
+
+        function checkAnswer(item) {
+            const dropTarget = document.getElementById('drop-target');
+            const feedbackEl = document.getElementById('feedback-message');
+            const readBtn = document.getElementById('btn-read-sentence');
+
+            if (item.id === currentWeather.id) {
+                // 答對邏輯
+                playSound('correct');
+                dropTarget.innerHTML = `<span class="font-black text-amber-300 text-xl md:text-2xl animate-pulse">${item.word}</span>`;
+                dropTarget.classList.remove('border-dashed', 'border-sky-400/80');
+                dropTarget.classList.add('border-solid', 'border-emerald-400', 'bg-emerald-950/80');
+
+                feedbackEl.innerText = "🎉 太棒了！答對了！";
+                feedbackEl.className = "text-xs md:text-sm font-bold text-emerald-600 mt-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm block animate-bounce";
+                
+                readBtn.classList.remove('hidden');
+
+                // 答對五彩紙屑動畫
+                if (window.confetti) {
+                    confetti({
+                        particleCount: 65,
+                        spread: 60,
+                        origin: { y: 0.7 }
+                    });
+                }
+            } else {
+                // 答錯邏輯
+                playSound('wrong');
+                feedbackEl.innerText = `❌ 不對哦，這是「${currentWeather.word}」嗎？再想想看～`;
+                feedbackEl.className = "text-xs md:text-sm font-bold text-rose-600 mt-1 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 shadow-sm block";
+            }
+        }
+
+        function clearSlot() {
+            const dropTarget = document.getElementById('drop-target');
+            dropTarget.innerHTML = `<span id="drop-placeholder" class="text-xs text-sky-400 font-normal">拖曳或點擊詞語</span>`;
+            dropTarget.className = "drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300";
+            document.getElementById('btn-read-sentence').classList.add('hidden');
+            document.getElementById('feedback-message').classList.add('hidden');
+        }
+
+        function renderWordGrid() {
+            const grid = document.getElementById('words-grid');
+            grid.innerHTML = '';
+
+            WEATHER_DATA.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "drag-card bg-sky-50/90 hover:bg-amber-50 border-2 border-sky-200 hover:border-amber-400 rounded-xl p-2 flex flex-col items-center justify-between cursor-grab active:cursor-grabbing shadow-sm relative transition";
+                card.setAttribute('draggable', 'true');
+
+                card.innerHTML = `
+                    <button onclick="speakMandarin('${item.word}', event)" title="聽標準普通話發音" class="absolute top-1 right-1 w-6 h-6 bg-white hover:bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-[10px] shadow-sm transition active:scale-90 border border-sky-200">
+                        🔊
+                    </button>
+                    <span class="text-[11px] font-semibold text-amber-600 tracking-wider mt-0.5">${item.pinyin}</span>
+                    <span class="text-lg md:text-xl font-black text-slate-800 my-0.5 tracking-wide">${item.word}</span>
+                `;
+
+                card.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.id);
+                });
+
+                card.addEventListener('click', () => {
+                    handleWordCardClick(item);
+                });
+
+                grid.appendChild(card);
+            });
+        }
+
+        function toggleMute() {
+            isMuted = !isMuted;
+            document.getElementById('mute-icon').innerText = isMuted ? '🔇' : '🔊';
+            document.getElementById('mute-text').innerText = isMuted ? '靜音中' : '音效開';
+        }
+
+        function initGame() {
+            // 隨機選取一種天氣
+            const randomIndex = Math.floor(Math.random() * WEATHER_DATA.length);
+            currentWeather = WEATHER_DATA[randomIndex];
+
+            // 渲染天氣 SVG 圖案
+            const imageContainer = document.getElementById('weather-image-container');
+            imageContainer.innerHTML = `
+                ${currentWeather.svg}
+                <span class="text-[10px] text-sky-300/80 font-mono mt-0.5">天氣情境圖</span>
+            `;
+
+            clearSlot();
+            renderWordGrid();
+        }
+
+        window.onload = function() {
+            initGame();
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.onvoiceschanged = () => getMandarinVoice();
+            }
+        };
+    </script>
 </body>
 </html>
