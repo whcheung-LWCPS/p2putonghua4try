@@ -1,643 +1,101 @@
-<!DOCTYPE html>
-<html lang="zh-HK">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>小小天氣播報員 - 普通話學習遊戲</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Canvas Confetti 慶祝特效 -->
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- 圓潤繁體字型 -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;800;900&display=swap" rel="stylesheet">
-    
-    <style>
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 50%, #f0f9ff 100%);
-            min-height: 100vh;
-        }
-        /* 電視直播間邊框樣式 */
-        .tv-frame {
-            background: linear-gradient(145deg, #1e293b, #0f172a);
-            border: 6px solid #334155;
-            box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.3);
-        }
-        /* 詞語卡片互動 hover 及拖拽效果 */
-        .drag-card {
-            touch-action: manipulation;
-            user-select: none;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .drag-card:hover {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 8px 12px -2px rgba(0, 0, 0, 0.12);
-        }
-        /* 放置區視覺反饋 */
-        .drop-zone {
-            transition: all 0.2s ease;
-        }
-        .drop-zone.drag-over {
-            background-color: #fef08a !important;
-            border-color: #f59e0b !important;
-            transform: scale(1.04);
-        }
-        /* LIVE 閃爍紅燈 */
-        .pulse-live {
-            animation: pulse-red 1.5s infinite;
-        }
-        @keyframes pulse-red {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.3; }
-        }
-        /* 聲音播放中的波浪提示 */
-        .audio-playing-badge {
-            animation: bounce 0.8s infinite alternate;
-        }
-    </style>
-</head>
-<body class="flex flex-col items-center justify-between p-2 md:p-5 text-slate-800">
 
-    <!-- 頁頭與標題區 -->
-    <header class="w-full max-w-5xl flex items-center justify-between gap-2 mb-3 bg-white/80 backdrop-blur-md p-3 md:p-4 rounded-2xl shadow-sm border border-sky-100 relative">
-        <div class="flex items-center gap-2.5">
-            <span class="text-2xl md:text-3xl">🎙️</span>
-            <div>
-                <h1 class="text-lg md:text-xl font-black text-sky-900 tracking-wide">小小天氣播報員</h1>
-            </div>
-        </div>
-        <div class="flex items-center gap-2">
-            <button onclick="initGame()" class="bg-amber-400 hover:bg-amber-500 active:scale-95 text-amber-950 font-bold text-xs md:text-sm px-3 py-2 rounded-xl shadow transition flex items-center gap-1">
-                <span>🔄</span> 換一局天氣
-            </button>
-            <button onclick="toggleMute()" class="bg-sky-100 hover:bg-sky-200 text-sky-800 text-xs font-bold px-2.5 py-2 rounded-xl transition flex items-center gap-1" id="btn-mute">
-                <span id="mute-icon">🔊</span> <span id="mute-text" class="hidden sm:inline">音效開</span>
-            </button>
-        </div>
+function speakText(text) {
+    if (!isAudioEnabled) return;
+
+    unlockAudioOnIOS();
+    speakTextWebSpeechFallback(text);
+}
+
+// 尋找普通話語音，排除廣東話
+function findMandarinVoice() {
+    const synth = window.speechSynthesis;
+    const voices = synth.getVoices() || [];
+
+    const mandarinVoices = voices.filter(voice => {
+        const lang = (voice.lang || '')
+            .toLowerCase()
+            .replace(/_/g, '-');
+
+        const name = (voice.name || '').toLowerCase();
+
+        // 排除廣東話
+        const isCantonese =
+            lang.includes('zh-hk') ||
+            lang.includes('yue') ||
+            name.includes('cantonese') ||
+            name.includes('sin-ji') ||
+            name.includes('sinji') ||
+            name.includes('廣東話') ||
+            name.includes('粵語');
+
+        if (isCantonese) return false;
+
+        // 識別普通話
+        return (
+            /^zh-(cn|sg|tw|cmn)(-|$)/.test(lang) ||
+            name.includes('mandarin') ||
+            name.includes('putonghua') ||
+            name.includes('普通話') ||
+            name.includes('國語') ||
+            name.includes('ting-ting') ||
+            name.includes('tingting') ||
+            name.includes('mei-jia')
+        );
+    });
+
+    // 優先選擇中國大陸普通話
+    return (
+        mandarinVoices.find(v =>
+            v.lang.toLowerCase().replace(/_/g, '-') === 'zh-cn'
+        ) ||
+        mandarinVoices.find(v =>
+            v.lang.toLowerCase().startsWith('zh-sg')
+        ) ||
+        mandarinVoices[0] ||
+        null
+    );
+}
+
+// 普通話朗讀
+function speakTextWebSpeechFallback(text) {
+    const synth = window.speechSynthesis;
+
+    if (!synth) {
+        alert('此 iPad 不支援語音朗讀。');
+        return;
+    }
+
+    synth.cancel();
+
+    const voice = findMandarinVoice();
+
+    // 沒有普通話聲線就不朗讀，防止變成廣東話
+    if (!voice) {
+        alert(
+            '這部 iPad 找不到普通話語音。' +
+            '請在 iPad 設定中下載普通話聲線，然後重新打開網頁。'
+        );
+
+        console.warn(
+            'Available voices:',
+            synth.getVoices().map(v => ({
+                name: v.name,
+                lang: v.lang
+            }))
+        );
+
+        return;
+    }
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // 明確指定普通話聲線
+    utterance.voice = voice;
+    utterance.lang = voice.lang;
+    utterance.rate = 0.85;
+    utterance.pitch = 1;
+    utterance.volume = 1;
+
+    synth.speak(utterance);
+}
 
-        <!-- 頂部普通話播放中動態標籤 -->
-        <div id="audio-status-badge" class="hidden absolute left-1/2 -translate-x-1/2 -bottom-3 bg-indigo-600 text-white text-[11px] font-bold px-3 py-0.5 rounded-full shadow-md flex items-center gap-1 z-20 audio-playing-badge">
-            <span class="animate-spin">🗣️</span> <span id="audio-status-text">正在以普通話發音...</span>
-        </div>
-    </header>
-
-    <!-- 主遊戲區域：左側天氣直播間 (7欄)，右側詞語卡片盤 (5欄) - md: 即開啟並排 -->
-    <main class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-5 items-stretch my-auto">
-        
-        <!-- 左側：電視天氣直播間 (7 欄) -->
-        <section class="md:col-span-7 flex flex-col justify-between w-full">
-            <div class="tv-frame w-full rounded-2xl p-3 md:p-4 relative overflow-hidden flex flex-col items-center">
-                <!-- TV Live 直播狀態 -->
-                <div class="w-full flex justify-between items-center mb-2 text-xs font-bold text-white tracking-widest border-b border-slate-700/60 pb-1.5">
-                    <span class="flex items-center gap-1 text-red-500 bg-red-950/80 px-2 py-0.5 rounded-full border border-red-800 text-[11px]">
-                        <span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span> LIVE 直播中
-                    </span>
-                    <span class="text-sky-300 font-mono text-[11px]">CHANNEL 2 - 普通話天氣台</span>
-                </div>
-
-                <!-- 天氣圖片顯示區 -->
-                <div id="weather-image-container" class="w-full h-36 sm:h-44 md:h-48 bg-gradient-to-b from-sky-900 via-sky-800 to-slate-900 rounded-xl flex flex-col items-center justify-center relative p-2 shadow-inner border border-slate-700">
-                    <!-- 動態 SVG 天氣圖案由 JS 渲染 -->
-                </div>
-
-                <!-- 填空句子區：現在為大家播報天氣，今天[天氣]。 -->
-                <div class="w-full bg-slate-800/90 rounded-xl p-2.5 mt-3 border border-slate-700 flex flex-wrap items-center justify-center gap-1.5 md:gap-2 text-white text-sm sm:text-base md:text-lg font-bold">
-                    <span class="text-sky-200 tracking-wider">現在為大家播報天氣，今天</span>
-                    
-                    <!-- 放置目標區 Drop Zone -->
-                    <div id="drop-target" 
-                         class="drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300"
-                         ondragover="handleDragOver(event)"
-                         ondragleave="handleDragLeave(event)"
-                         ondrop="handleDrop(event)"
-                         onclick="clearSlot()">
-                        <span id="drop-placeholder" class="text-xs text-sky-400 font-normal">拖曳或點擊詞語</span>
-                    </div>
-
-                    <span class="text-sky-200">。</span>
-                </div>
-            </div>
-
-            <!-- 答對反饋與全句普通話朗讀按鈕 -->
-            <div class="mt-2 min-h-[48px] w-full flex flex-col items-center justify-center">
-                <button id="btn-read-sentence" 
-                        onclick="speakFullSentence()" 
-                        class="hidden bg-emerald-500 hover:bg-emerald-600 active:scale-95 text-white text-sm md:text-base font-bold px-5 py-2.5 rounded-xl shadow-md flex items-center gap-2 transition animate-bounce border border-emerald-300">
-                    <span id="read-btn-icon" class="text-lg">📢</span> 按一下發聲：普通話讀出整句
-                </button>
-                <p id="feedback-message" class="text-xs md:text-sm font-bold text-slate-700 hidden mt-1 px-3 py-1 rounded-full bg-white/90 shadow-sm border"></p>
-            </div>
-        </section>
-
-        <!-- 右側：天氣詞語卡片盤 (5 欄) -->
-        <section class="md:col-span-5 w-full bg-white/95 backdrop-blur-md rounded-2xl p-3 md:p-4 shadow-md border border-sky-100 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-2.5 border-b border-sky-100 pb-2">
-                    <h2 class="text-sm md:text-base font-bold text-sky-900 flex items-center gap-1.5">
-                        <span>🏷️</span> 天氣詞語卡片區
-                    </h2>
-                    <span class="text-[11px] text-indigo-600 font-semibold">（按 🔊 聽國語發音）</span>
-                </div>
-
-                <!-- 8 個天氣詞語網格卡片區 (2欄 layout) -->
-                <div id="words-grid" class="grid grid-cols-2 gap-2">
-                    <!-- JavaScript 動態生成 8 個天氣詞語 -->
-                </div>
-            </div>
-
-            <p class="text-[11px] text-center text-sky-600/80 font-medium mt-3 pt-2 border-t border-sky-100">
-                💡 提示：點擊右側詞語卡片，或拖曳至左側填空框。
-            </p>
-        </section>
-
-    </main>
-
-    <!-- 頁腳版權聲明 -->
-    <footer class="w-full max-w-5xl text-center text-[11px] text-sky-700 font-medium py-2 mt-2 border-t border-sky-200/60">
-        香港小學普通話科「小小天氣播報員」自主學習小遊戲 &copy; 自主學習數位教材
-    </footer>
-
-    <script>
-        // 8 種天氣完整資料庫 (包含漢字、拼音、向量圖案 SVG)
-        const WEATHER_DATA = [
-            {
-                id: 'qingtian',
-                word: '晴天',
-                pinyin: 'qīng tiān',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <circle cx="50" cy="50" r="22" fill="#FBBF24"/>
-                        <g stroke="#FBBF24" stroke-width="4" stroke-linecap="round">
-                            <line x1="50" y1="12" x2="50" y2="20"/>
-                            <line x1="50" y1="80" x2="50" y2="88"/>
-                            <line x1="12" y1="50" x2="20" y2="50"/>
-                            <line x1="80" y1="50" x2="88" y2="50"/>
-                            <line x1="23" y1="23" x2="29" y2="29"/>
-                            <line x1="71" y1="71" x2="77" y2="77"/>
-                            <line x1="23" y1="77" x2="29" y2="71"/>
-                            <line x1="71" y1="29" x2="77" y2="23"/>
-                        </g>
-                      </svg>`
-            },
-            {
-                id: 'duoyun',
-                word: '多雲',
-                pinyin: 'duō yún',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <circle cx="38" cy="38" r="18" fill="#FBBF24"/>
-                        <path d="M 30 65 A 14 14 0 0 1 45 48 A 18 18 0 0 1 78 52 A 12 12 0 0 1 82 72 Z" fill="#E2E8F0"/>
-                        <path d="M 20 72 A 12 12 0 0 1 32 58 A 16 16 0 0 1 62 62 A 12 12 0 0 1 65 78 Z" fill="#CBD5E1"/>
-                      </svg>`
-            },
-            {
-                id: 'yintian',
-                word: '陰天',
-                pinyin: 'yīn tiān',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <path d="M 25 50 A 16 16 0 0 1 50 38 A 20 20 0 0 1 85 46 A 15 15 0 0 1 85 72 Z" fill="#94A3B8"/>
-                        <path d="M 15 72 A 14 14 0 0 1 30 56 A 18 18 0 0 1 65 60 A 14 14 0 0 1 68 82 Z" fill="#64748B"/>
-                      </svg>`
-            },
-            {
-                id: 'xiaoyu',
-                word: '小雨',
-                pinyin: 'xiǎo yǔ',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <path d="M 20 48 A 14 14 0 0 1 42 36 A 18 18 0 0 1 78 44 A 12 12 0 0 1 78 66 Z" fill="#94A3B8"/>
-                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
-                            <line x1="35" y1="72" x2="30" y2="82"/>
-                            <line x1="55" y1="72" x2="50" y2="82"/>
-                            <line x1="70" y1="72" x2="65" y2="82"/>
-                        </g>
-                      </svg>`
-            },
-            {
-                id: 'zhongyu',
-                word: '中雨',
-                pinyin: 'zhōng yǔ',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <path d="M 20 45 A 14 14 0 0 1 42 33 A 18 18 0 0 1 78 41 A 12 12 0 0 1 78 63 Z" fill="#64748B"/>
-                        <g stroke="#0EA5E9" stroke-width="3.5" stroke-linecap="round">
-                            <line x1="30" y1="68" x2="23" y2="82"/>
-                            <line x1="45" y1="68" x2="38" y2="82"/>
-                            <line x1="60" y1="68" x2="53" y2="82"/>
-                            <line x1="75" y1="68" x2="68" y2="82"/>
-                        </g>
-                      </svg>`
-            },
-            {
-                id: 'dayu',
-                word: '大雨',
-                pinyin: 'dà yǔ',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <path d="M 20 42 A 14 14 0 0 1 42 30 A 18 18 0 0 1 78 38 A 12 12 0 0 1 78 60 Z" fill="#475569"/>
-                        <g stroke="#0284C7" stroke-width="4" stroke-linecap="round">
-                            <line x1="25" y1="65" x2="15" y2="85"/>
-                            <line x1="40" y1="65" x2="30" y2="85"/>
-                            <line x1="55" y1="65" x2="45" y2="85"/>
-                            <line x1="70" y1="65" x2="60" y2="85"/>
-                        </g>
-                      </svg>`
-            },
-            {
-                id: 'zhenyu',
-                word: '陣雨',
-                pinyin: 'zhèn yǔ',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <circle cx="32" cy="35" r="15" fill="#FBBF24"/>
-                        <path d="M 25 50 A 14 14 0 0 1 45 36 A 18 18 0 0 1 80 42 A 12 12 0 0 1 80 64 Z" fill="#94A3B8"/>
-                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
-                            <line x1="38" y1="70" x2="30" y2="82"/>
-                            <line x1="58" y1="70" x2="50" y2="82"/>
-                            <line x1="72" y1="70" x2="64" y2="82"/>
-                        </g>
-                      </svg>`
-            },
-            {
-                id: 'leiyu',
-                word: '雷雨',
-                pinyin: 'léi yǔ',
-                svg: `<svg class="w-20 h-20 sm:w-28 sm:h-28 drop-shadow-md" viewBox="0 0 100 100">
-                        <path d="M 20 40 A 14 14 0 0 1 42 28 A 18 18 0 0 1 78 36 A 12 12 0 0 1 78 58 Z" fill="#334155"/>
-                        <polygon points="48,54 38,70 46,70 40,86 58,66 49,66" fill="#F59E0B"/>
-                        <g stroke="#38BDF8" stroke-width="3" stroke-linecap="round">
-                            <line x1="26" y1="64" x2="18" y2="80"/>
-                            <line x1="72" y1="64" x2="64" y2="80"/>
-                        </g>
-                      </svg>`
-            }
-        ];
-
-        let currentWeather = null;
-        let isMuted = false;
-        let audioCtx = null;
-
-        function playSound(type) {
-            if (isMuted) return;
-            try {
-                if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
-                const now = audioCtx.currentTime;
-
-                if (type === 'correct') {
-                    // 答對雙提示音
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(523.25, now);
-                    osc.frequency.setValueAtTime(659.25, now + 0.12);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now);
-                    osc.stop(now + 0.4);
-                } else if (type === 'wrong') {
-                    // 答錯低音
-                    osc.type = 'triangle';
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.setValueAtTime(174.61, now + 0.15);
-                    gain.gain.setValueAtTime(0.3, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-                    osc.start(now);
-                    osc.stop(now + 0.35);
-                }
-            } catch (e) {
-                console.log("Audio play error:", e);
-            }
-        }
-
-        function showAudioIndicator(text) {
-            const badge = document.getElementById('audio-status-badge');
-            const statusText = document.getElementById('audio-status-text');
-            if (badge && statusText) {
-                statusText.innerText = `普通話發音：「${text}」`;
-                badge.classList.remove('hidden');
-            }
-        }
-
-        function hideAudioIndicator() {
-            const badge = document.getElementById('audio-status-badge');
-            if (badge) badge.classList.add('hidden');
-        }
-
-        function pcmToWav(pcm16Array, sampleRate) {
-            const numChannels = 1;
-            const bytesPerSample = 2;
-            const blockAlign = numChannels * bytesPerSample;
-            const byteRate = sampleRate * blockAlign;
-            const dataSize = pcm16Array.length * bytesPerSample;
-            const buffer = new ArrayBuffer(44 + dataSize);
-            const view = new DataView(buffer);
-
-            const writeString = (v, offset, str) => {
-                for (let i = 0; i < str.length; i++) v.setUint8(offset + i, str.charCodeAt(i));
-            };
-
-            writeString(view, 0, 'RIFF');
-            view.setUint32(4, 36 + dataSize, true);
-            writeString(view, 8, 'WAVE');
-            writeString(view, 12, 'fmt ');
-            view.setUint32(16, 16, true);
-            view.setUint16(20, 1, true);
-            view.setUint16(22, numChannels, true);
-            view.setUint32(24, sampleRate, true);
-            view.setUint32(28, byteRate, true);
-            view.setUint16(32, blockAlign, true);
-            view.setUint16(34, 16, true);
-            writeString(view, 36, 'data');
-            view.setUint32(40, dataSize, true);
-
-            let offset = 44;
-            for (let i = 0; i < pcm16Array.length; i++, offset += 2) {
-                view.setInt16(offset, pcm16Array[i], true);
-            }
-
-            return new Blob([buffer], { type: 'audio/wav' });
-        }
-
-        function base64ToArrayBuffer(base64) {
-            const binaryString = window.atob(base64);
-            const len = binaryString.length;
-            const bytes = new Uint8Array(len);
-            for (let i = 0; i < len; i++) {
-                bytes[i] = binaryString.charCodeAt(i);
-            }
-            return bytes.buffer;
-        }
-
-        async function speakWithGeminiTTS(text) {
-            try {
-                const apiKey = "";
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-                
-                // 直接傳送純中文，確保 AI 自動識別並以標準普通話讀出
-                const payload = {
-                    contents: [{
-                        parts: [{ text: text }]
-                    }],
-                    generationConfig: {
-                        responseModalities: ["AUDIO"],
-                        speechConfig: {
-                            voiceConfig: {
-                                prebuiltVoiceConfig: { voiceName: "Sulafat" } // 暖心標準國語女聲
-                            }
-                        }
-                    }
-                };
-
-                const res = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                if (!res.ok) return false;
-
-                const data = await res.json();
-                const part = data.candidates?.[0]?.content?.parts?.[0];
-                const audioData = part?.inlineData?.data;
-                const mimeType = part?.inlineData?.mimeType || "";
-
-                if (audioData) {
-                    let sampleRate = 24000;
-                    const match = mimeType.match(/rate=(\d+)/);
-                    if (match && match[1]) sampleRate = parseInt(match[1], 10);
-
-                    const pcmBuffer = base64ToArrayBuffer(audioData);
-                    const pcm16 = new Int16Array(pcmBuffer);
-                    const wavBlob = pcmToWav(pcm16, sampleRate);
-                    const audioUrl = URL.createObjectURL(wavBlob);
-                    
-                    const audio = new Audio(audioUrl);
-                    await new Promise((resolve) => {
-                        audio.onended = () => resolve(true);
-                        audio.onerror = () => resolve(false);
-                        audio.play().catch(() => resolve(false));
-                    });
-                    return true;
-                }
-            } catch (e) {
-                console.warn("Gemini TTS API error:", e);
-            }
-            return false;
-        }
-
-        function speakWithGoogleTTS(text) {
-            return new Promise((resolve) => {
-                try {
-                    const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=zh-CN&client=tw-ob`;
-                    const audio = new Audio(url);
-                    audio.onended = () => resolve(true);
-                    audio.onerror = () => resolve(false);
-                    audio.play().then(() => {}).catch(() => resolve(false));
-                } catch(e) {
-                    resolve(false);
-                }
-            });
-        }
-
-        function getMandarinVoice() {
-            if (!('speechSynthesis' in window)) return null;
-            const voices = window.speechSynthesis.getVoices();
-            if (!voices || voices.length === 0) return null;
-
-            // 嚴格檢測並排除廣東話 / 粵語語音包
-            const isCantonese = (v) => {
-                const lang = (v.lang || '').toLowerCase();
-                const name = (v.name || '').toLowerCase();
-                return lang.includes('hk') || lang.includes('yue') || name.includes('cantonese') || name.includes('hong kong') || name.includes('sin-ji');
-            };
-
-            // 第一優先：標準 zh-CN / zh-Hans
-            let v = voices.find(v => !isCantonese(v) && (v.lang.toLowerCase() === 'zh-cn' || v.lang.toLowerCase() === 'zh_cn' || v.lang.toLowerCase() === 'zh-hans-cn'));
-            
-            // 第二優先：知名普通話語音庫名稱 (TingTing, Yaoyao, HuiHui, Putonghua)
-            if (!v) {
-                const kw = ['mandarin', 'putonghua', 'tingting', 'yaoyao', 'huihui', 'kangkang', 'cmn', 'zh-hans'];
-                v = voices.find(v => !isCantonese(v) && kw.some(k => v.lang.toLowerCase().includes(k) || v.name.toLowerCase().includes(k)));
-            }
-
-            // 第三優先：國語 zh-TW 台灣國語（比粵語更符合普通話教學需要）
-            if (!v) {
-                v = voices.find(v => !isCantonese(v) && (v.lang.toLowerCase().includes('tw') || v.name.toLowerCase().includes('taiwan')));
-            }
-
-            return v;
-        }
-
-        function speakWithWebSpeechMandarin(text) {
-            if (!('speechSynthesis' in window)) {
-                hideAudioIndicator();
-                return;
-            }
-
-            window.speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = 'zh-CN';
-            utterance.rate = 0.85;
-
-            const mandarinVoice = getMandarinVoice();
-            if (mandarinVoice) {
-                utterance.voice = mandarinVoice;
-                utterance.onend = hideAudioIndicator;
-                utterance.onerror = hideAudioIndicator;
-                window.speechSynthesis.speak(utterance);
-            } else {
-                // 如果裝置完全沒有普通話語音庫，寧可不發聲也不播放廣東話，並於1.2秒後隱藏指示標籤
-                console.warn("裝置暫無普通話語音庫，已自動封鎖廣東話播放。");
-                setTimeout(hideAudioIndicator, 1200);
-            }
-        }
-
-        async function speakMandarin(text, event) {
-            if (event) event.stopPropagation();
-
-            showAudioIndicator(text);
-
-            // 第一層：Gemini AI TTS 標準國語
-            const geminiSuccess = await speakWithGeminiTTS(text);
-            if (geminiSuccess) {
-                hideAudioIndicator();
-                return;
-            }
-
-            // 第二層：線上標準普通話音訊
-            const onlineSuccess = await speakWithGoogleTTS(text);
-            if (onlineSuccess) {
-                hideAudioIndicator();
-                return;
-            }
-
-            // 第三層：Web Speech API（嚴格過濾並排除廣東話）
-            speakWithWebSpeechMandarin(text);
-        }
-
-        function speakFullSentence() {
-            if (!currentWeather) return;
-            speakMandarin(`現在為大家播報天氣，今天${currentWeather.word}`);
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            document.getElementById('drop-target').classList.add('drag-over');
-        }
-
-        function handleDragLeave(e) {
-            document.getElementById('drop-target').classList.remove('drag-over');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            document.getElementById('drop-target').classList.remove('drag-over');
-            const wordId = e.dataTransfer.getData('text/plain');
-            const targetItem = WEATHER_DATA.find(w => w.id === wordId);
-            if (targetItem) checkAnswer(targetItem);
-        }
-
-        function handleWordCardClick(item) {
-            checkAnswer(item);
-        }
-
-        function checkAnswer(item) {
-            const dropTarget = document.getElementById('drop-target');
-            const feedbackEl = document.getElementById('feedback-message');
-            const readBtn = document.getElementById('btn-read-sentence');
-
-            if (item.id === currentWeather.id) {
-                // 答對邏輯
-                playSound('correct');
-                dropTarget.innerHTML = `<span class="font-black text-amber-300 text-xl md:text-2xl animate-pulse">${item.word}</span>`;
-                dropTarget.classList.remove('border-dashed', 'border-sky-400/80');
-                dropTarget.classList.add('border-solid', 'border-emerald-400', 'bg-emerald-950/80');
-
-                feedbackEl.innerText = "🎉 太棒了！答對了！";
-                feedbackEl.className = "text-xs md:text-sm font-bold text-emerald-600 mt-1 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 shadow-sm block animate-bounce";
-                
-                readBtn.classList.remove('hidden');
-
-                // 答對五彩紙屑動畫
-                if (window.confetti) {
-                    confetti({
-                        particleCount: 65,
-                        spread: 60,
-                        origin: { y: 0.7 }
-                    });
-                }
-            } else {
-                // 答錯邏輯
-                playSound('wrong');
-                feedbackEl.innerText = `❌ 不對哦，這是「${currentWeather.word}」嗎？再想想看～`;
-                feedbackEl.className = "text-xs md:text-sm font-bold text-rose-600 mt-1 px-3 py-1 rounded-full bg-rose-50 border border-rose-200 shadow-sm block";
-            }
-        }
-
-        function clearSlot() {
-            const dropTarget = document.getElementById('drop-target');
-            dropTarget.innerHTML = `<span id="drop-placeholder" class="text-xs text-sky-400 font-normal">拖曳或點擊詞語</span>`;
-            dropTarget.className = "drop-zone min-w-[110px] md:min-w-[130px] h-10 md:h-12 bg-slate-900/90 border-2 border-dashed border-sky-400/80 rounded-lg flex items-center justify-center px-2 text-amber-300 shadow-inner text-lg md:text-xl cursor-pointer hover:border-amber-300";
-            document.getElementById('btn-read-sentence').classList.add('hidden');
-            document.getElementById('feedback-message').classList.add('hidden');
-        }
-
-        function renderWordGrid() {
-            const grid = document.getElementById('words-grid');
-            grid.innerHTML = '';
-
-            WEATHER_DATA.forEach(item => {
-                const card = document.createElement('div');
-                card.className = "drag-card bg-sky-50/90 hover:bg-amber-50 border-2 border-sky-200 hover:border-amber-400 rounded-xl p-2 flex flex-col items-center justify-between cursor-grab active:cursor-grabbing shadow-sm relative transition";
-                card.setAttribute('draggable', 'true');
-
-                card.innerHTML = `
-                    <button onclick="speakMandarin('${item.word}', event)" title="聽標準普通話發音" class="absolute top-1 right-1 w-6 h-6 bg-white hover:bg-sky-100 text-sky-600 rounded-full flex items-center justify-center text-[10px] shadow-sm transition active:scale-90 border border-sky-200">
-                        🔊
-                    </button>
-                    <span class="text-[11px] font-semibold text-amber-600 tracking-wider mt-0.5">${item.pinyin}</span>
-                    <span class="text-lg md:text-xl font-black text-slate-800 my-0.5 tracking-wide">${item.word}</span>
-                `;
-
-                card.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', item.id);
-                });
-
-                card.addEventListener('click', () => {
-                    handleWordCardClick(item);
-                });
-
-                grid.appendChild(card);
-            });
-        }
-
-        function toggleMute() {
-            isMuted = !isMuted;
-            document.getElementById('mute-icon').innerText = isMuted ? '🔇' : '🔊';
-            document.getElementById('mute-text').innerText = isMuted ? '靜音中' : '音效開';
-        }
-
-        function initGame() {
-            // 隨機選取一種天氣
-            const randomIndex = Math.floor(Math.random() * WEATHER_DATA.length);
-            currentWeather = WEATHER_DATA[randomIndex];
-
-            // 渲染天氣 SVG 圖案
-            const imageContainer = document.getElementById('weather-image-container');
-            imageContainer.innerHTML = `
-                ${currentWeather.svg}
-                <span class="text-[10px] text-sky-300/80 font-mono mt-0.5">天氣情境圖</span>
-            `;
-
-            clearSlot();
-            renderWordGrid();
-        }
-
-        window.onload = function() {
-            initGame();
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.onvoiceschanged = () => getMandarinVoice();
-            }
-        };
-    </script>
-</body>
-</html>
